@@ -1,0 +1,6 @@
+design-lab/
+get_stars.py
+stars.csv
+__pycache__/
+*.pyc
+.DS_Store

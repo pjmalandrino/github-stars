@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Observatoire — Docling-Studio Stargazers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Serif+Display&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --ivory: #f5f0e8;
+  --ivory-dark: #e8e0d0;
+  --charcoal: #1a1915;
+  --gold: #c9a227;
+  --gold-dim: rgba(201,162,39,0.15);
+  --red: #8b2500;
+  --red-dim: rgba(139,37,0,0.12);
+  --filet: rgba(26,25,21,0.18);
+  --filet-light: rgba(26,25,21,0.08);
+  --font-hero: 'DM Serif Display', Georgia, serif;
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'Crimson Pro', Georgia, serif;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--ivory);
+  color: var(--charcoal);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Grain */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 9999;
+}
+
+.observatory { max-width: 1120px; margin: 0 auto; padding: 0 32px; }
+
+/* ── Cartouche / header ── */
+.cartouche {
+  padding: 40px 0 28px;
+  display: flex; align-items: baseline; justify-content: space-between;
+  border-bottom: 1px solid var(--filet);
+}
+.cartouche-title {
+  font-family: var(--font-display);
+  font-size: 13px; font-weight: 500;
+  letter-spacing: 0.18em; text-transform: uppercase;
+}
+.cartouche-title span { color: var(--gold); margin: 0 6px; }
+.cartouche-sub {
+  font-family: var(--font-body);
+  font-size: 13px; font-style: italic;
+  color: rgba(26,25,21,0.5); font-weight: 300;
+}
+
+/* ── Hero card ── */
+.hero {
+  background: var(--charcoal);
+  margin: 32px 0;
+  padding: 48px 56px;
+  border-radius: 2px;
+  position: relative; overflow: hidden;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -80px; right: -80px;
+  width: 320px; height: 320px;
+  background: radial-gradient(circle, rgba(139,37,0,0.35) 0%, rgba(201,162,39,0.12) 40%, transparent 70%);
+  border-radius: 50%;
+  animation: orbe 4s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes orbe {
+  0%,100% { opacity: .7; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.08); }
+}
+.hero-left { position: relative; z-index: 1; }
+.hero-count {
+  font-family: var(--font-hero);
+  font-size: 8rem;
+  color: var(--ivory);
+  line-height: .9;
+  letter-spacing: -0.02em;
+  display: flex; align-items: baseline;
+}
+.hero-cursor {
+  display: inline-block; width: 4px; height: 6rem;
+  background: var(--gold);
+  margin-left: 8px; border-radius: 1px;
+  animation: blink 1s steps(1) infinite;
+  vertical-align: baseline;
+}
+@keyframes blink { 0%,50%{opacity:1} 51%,100%{opacity:0} }
+.hero-label {
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: rgba(245,240,232,0.45);
+  margin-top: 10px; font-style: italic; font-weight: 300;
+}
+.hero-right { position: relative; z-index: 1; text-align: right; }
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--font-display);
+  font-size: 13px; font-weight: 500;
+  color: var(--gold);
+  border: 1px solid rgba(201,162,39,0.3);
+  padding: 6px 14px; border-radius: 2px;
+  letter-spacing: 0.04em;
+}
+.hero-badge svg { width: 12px; height: 12px; }
+.hero-meta {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: rgba(245,240,232,0.3);
+  margin-top: 12px; font-style: italic;
+}
+
+/* ── Controls ── */
+.controls {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 0; border-bottom: 1px solid var(--filet);
+  flex-wrap: wrap; gap: 12px;
+}
+.filter-group {
+  display: flex; align-items: center; gap: 0;
+}
+.filter-group label {
+  font-family: var(--font-body);
+  font-size: 13px; font-style: italic;
+  color: rgba(26,25,21,0.5); margin-right: 12px; font-weight: 300;
+}
+.filter-btn {
+  font-family: var(--font-display);
+  font-size: 12px; font-weight: 500;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  background: none; border: 1px solid var(--filet); border-right: none;
+  padding: 7px 14px; color: rgba(26,25,21,0.55);
+  cursor: pointer; transition: all 0.2s;
+}
+.filter-btn:last-of-type { border-right: 1px solid var(--filet); }
+.filter-btn:hover { color: var(--charcoal); background: rgba(26,25,21,0.04); }
+.filter-btn.active {
+  background: var(--charcoal); color: var(--ivory); border-color: var(--charcoal);
+}
+.filter-btn.active + .filter-btn { border-left-color: var(--charcoal); }
+.date-inputs {
+  display: flex; align-items: center; gap: 8px; margin-left: 16px;
+}
+.date-inputs input[type="date"] {
+  font-family: var(--font-display);
+  font-size: 12px; border: 1px solid var(--filet);
+  padding: 6px 10px; background: transparent;
+  color: var(--charcoal); border-radius: 2px; outline: none;
+  transition: border-color 0.2s;
+}
+.date-inputs input[type="date"]:focus { border-color: var(--gold); }
+.date-inputs span {
+  font-family: var(--font-body);
+  font-size: 13px; font-style: italic;
+  color: rgba(26,25,21,0.4);
+}
+.btn-refresh {
+  font-family: var(--font-display);
+  font-size: 12px; font-weight: 500;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  background: none; border: 1px solid var(--charcoal);
+  padding: 7px 18px; color: var(--charcoal);
+  cursor: pointer; display: flex; align-items: center;
+  gap: 8px; transition: all 0.2s; border-radius: 2px;
+}
+.btn-refresh:hover { background: var(--charcoal); color: var(--ivory); }
+.btn-refresh svg { width: 14px; height: 14px; }
+.btn-refresh.spinning svg { animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Stats row ── */
+.stats-row {
+  display: grid; grid-template-columns: repeat(4,1fr);
+  border-bottom: 1px solid var(--filet);
+}
+.stat-cell {
+  padding: 20px 0; text-align: center;
+  border-right: 1px solid var(--filet);
+}
+.stat-cell:last-child { border-right: none; }
+.stat-value {
+  font-family: var(--font-display);
+  font-size: 28px; font-weight: 600;
+  color: var(--charcoal); letter-spacing: -0.02em;
+}
+.stat-label {
+  font-family: var(--font-body);
+  font-size: 12px; font-style: italic;
+  color: rgba(26,25,21,0.45); margin-top: 4px; font-weight: 300;
+}
+
+/* ── Section headers ── */
+.section-header {
+  display: flex; align-items: baseline; justify-content: space-between;
+  padding: 28px 0 16px; border-bottom: 1px solid var(--filet);
+}
+.section-title {
+  font-family: var(--font-display);
+  font-size: 12px; font-weight: 500;
+  letter-spacing: 0.16em; text-transform: uppercase;
+}
+.section-title::before { content: '\00a7'; margin-right: 8px; color: var(--gold); }
+.section-note {
+  font-family: var(--font-body);
+  font-size: 12px; font-style: italic;
+  color: rgba(26,25,21,0.4); font-weight: 300;
+}
+
+/* ── Charts ── */
+.chart-panel { padding: 24px 0; border-bottom: 1px solid var(--filet-light); }
+.chart-wrap { position: relative; height: 280px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; }
+.grid-2 > :first-child { border-right: 1px solid var(--filet); padding-right: 32px; }
+.grid-2 > :last-child { padding-left: 32px; }
+canvas { border-radius: 0 !important; }
+
+/* ── Heatmap ── */
+.heatmap-container { padding: 24px 0; }
+.heatmap-body { display: flex; align-items: flex-start; }
+.heatmap-labels {
+  display: flex; flex-direction: column; gap: 3px; margin-right: 8px;
+}
+.heatmap-label {
+  font-family: var(--font-display);
+  font-size: 9px; color: rgba(26,25,21,0.35);
+  height: 16px; display: flex; align-items: center;
+  letter-spacing: 0.05em; text-transform: uppercase;
+}
+.heatmap-scroll { overflow-x: auto; flex: 1; }
+.heatmap-scroll::-webkit-scrollbar { height: 3px; }
+.heatmap-scroll::-webkit-scrollbar-thumb { background: var(--ivory-dark); border-radius: 2px; }
+.heatmap-grid { display: flex; gap: 3px; }
+.heatmap-column { display: flex; flex-direction: column; gap: 3px; align-items: center; }
+.heatmap-cell {
+  width: 16px; height: 16px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: default;
+}
+.heatmap-dot {
+  border-radius: 50%; background: var(--charcoal);
+  transition: all 0.15s;
+}
+.heatmap-cell:hover .heatmap-dot { box-shadow: 0 0 0 2px var(--gold); }
+.heatmap-months {
+  display: flex; gap: 3px; margin-bottom: 6px;
+}
+.heatmap-month {
+  font-family: var(--font-display);
+  font-size: 9px; color: rgba(26,25,21,0.35);
+  letter-spacing: 0.05em; text-transform: uppercase;
+  min-width: 16px; text-align: center;
+}
+.heatmap-legend {
+  display: flex; align-items: center; gap: 6px;
+  justify-content: flex-end; margin-top: 12px;
+}
+.heatmap-legend span {
+  font-family: var(--font-body); font-size: 11px;
+  font-style: italic; color: rgba(26,25,21,0.35);
+}
+.heatmap-legend .sw {
+  width: 10px; height: 10px; border-radius: 50%;
+  display: inline-block; background: var(--charcoal);
+}
+
+/* ── Stargazers ── */
+.stargazer-list { padding: 16px 0; }
+.stargazer-row {
+  display: flex; align-items: center;
+  padding: 10px 0; border-bottom: 1px solid var(--filet-light);
+  transition: background 0.15s;
+}
+.stargazer-row:hover { background: rgba(201,162,39,0.04); margin: 0 -12px; padding: 10px 12px; }
+.stargazer-index {
+  font-family: var(--font-display);
+  font-size: 11px; color: rgba(26,25,21,0.25);
+  width: 36px; flex-shrink: 0; letter-spacing: 0.05em;
+}
+.stargazer-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  margin-right: 14px; border: 1px solid var(--filet); flex-shrink: 0;
+}
+.stargazer-name {
+  font-family: var(--font-display);
+  font-size: 14px; font-weight: 500; flex: 1;
+}
+.stargazer-name a {
+  color: inherit; text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s;
+}
+.stargazer-name a:hover { border-bottom-color: var(--gold); }
+.stargazer-date {
+  font-family: var(--font-body);
+  font-size: 13px; font-style: italic;
+  color: rgba(26,25,21,0.4); font-weight: 300;
+}
+
+/* ── Colophon ── */
+.colophon {
+  padding: 28px 0 48px; border-top: 1px solid var(--filet);
+  display: flex; justify-content: space-between; align-items: baseline;
+}
+.colophon-left {
+  font-family: var(--font-body);
+  font-size: 12px; font-style: italic;
+  color: rgba(26,25,21,0.35); font-weight: 300;
+}
+.colophon-left a { color: rgba(26,25,21,0.5); border-bottom: 1px solid var(--filet); text-decoration: none; }
+.colophon-left a:hover { color: var(--gold); border-color: var(--gold); }
+.colophon-right {
+  font-family: var(--font-display);
+  font-size: 10px; letter-spacing: 0.12em;
+  text-transform: uppercase; color: rgba(26,25,21,0.25);
+}
+
+/* ── Tooltip ── */
+.tooltip {
+  position: fixed; background: var(--charcoal); color: var(--ivory);
+  font-family: var(--font-display);
+  font-size: 11px; padding: 6px 12px; border-radius: 2px;
+  pointer-events: none; z-index: 100;
+  opacity: 0; transition: opacity 0.15s; white-space: nowrap;
+}
+.tooltip.visible { opacity: 1; }
+
+/* ── Toast ── */
+.toast {
+  position: fixed; bottom: 1.5rem; left: 50%;
+  transform: translateX(-50%) translateY(120%);
+  background: var(--charcoal); color: var(--ivory);
+  font-family: var(--font-display); font-size: 12px;
+  letter-spacing: 0.04em;
+  padding: 8px 20px; border-radius: 2px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+  transition: transform 0.45s cubic-bezier(0.16,1,0.3,1);
+  z-index: 100; pointer-events: none;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ── Empty ── */
+.empty-state {
+  text-align: center; padding: 48px 0;
+  font-family: var(--font-body); font-style: italic;
+  color: rgba(26,25,21,0.35); font-size: 15px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .observatory { padding: 0 16px; }
+  .hero { padding: 32px 24px; flex-direction: column; align-items: flex-start; gap: 24px; }
+  .hero-count { font-size: 5rem; }
+  .hero-cursor { height: 3.8rem; }
+  .hero-right { text-align: left; }
+  .grid-2 { grid-template-columns: 1fr; }
+  .grid-2 > :first-child { border-right: none; padding-right: 0; border-bottom: 1px solid var(--filet); padding-bottom: 24px; }
+  .grid-2 > :last-child { padding-left: 0; padding-top: 24px; }
+  .stats-row { grid-template-columns: repeat(2,1fr); }
+  .stat-cell:nth-child(2) { border-right: none; }
+  .stat-cell:nth-child(1), .stat-cell:nth-child(2) { border-bottom: 1px solid var(--filet); }
+  .controls { flex-direction: column; align-items: flex-start; }
+  .date-inputs { margin-left: 0; }
+  .cartouche { flex-direction: column; gap: 4px; }
+}
+</style>
+</head>
+<body>
+
+<div class="observatory">
+
+  <header class="cartouche">
+    <div class="cartouche-title">Observatoire<span>·</span>Releve stellaire</div>
+    <div class="cartouche-sub">scub-france / Docling-Studio</div>
+  </header>
+
+  <div class="hero">
+    <div class="hero-left">
+      <div class="hero-count">
+        <span id="heroCount">--</span>
+        <span class="hero-cursor"></span>
+      </div>
+      <div class="hero-label">etoiles observees a ce jour</div>
+    </div>
+    <div class="hero-right">
+      <div class="hero-badge" id="heroBadge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+        <span>+0 cette semaine</span>
+      </div>
+      <div class="hero-meta" id="heroMeta">derniere observation : --</div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div style="display:flex;align-items:center;flex-wrap:wrap;gap:12px;">
+      <div class="filter-group">
+        <label>Periode :</label>
+        <button class="filter-btn" data-period="7">7j</button>
+        <button class="filter-btn" data-period="14">14j</button>
+        <button class="filter-btn" data-period="30">30j</button>
+        <button class="filter-btn" data-period="90">90j</button>
+        <button class="filter-btn active" data-period="all">Tout</button>
+      </div>
+      <div class="date-inputs">
+        <input type="date" id="dateFrom">
+        <span>—</span>
+        <input type="date" id="dateTo">
+      </div>
+    </div>
+    <button class="btn-refresh" id="btnRefresh">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="23 4 23 10 17 10"></polyline>
+        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+      </svg>
+      Actualiser
+    </button>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-cell"><div class="stat-value" id="statTotal">--</div><div class="stat-label">sur la periode</div></div>
+    <div class="stat-cell"><div class="stat-value" id="statThisWeek">--</div><div class="stat-label">cette semaine</div></div>
+    <div class="stat-cell"><div class="stat-value" id="statAvg">--</div><div class="stat-label">moy. / semaine</div></div>
+    <div class="stat-cell"><div class="stat-value" id="statPeak">--</div><div class="stat-label">pic journalier</div></div>
+  </div>
+
+  <div class="section-header">
+    <div class="section-title">Courbe cumulative</div>
+    <div class="section-note">releve chronologique des observations</div>
+  </div>
+  <div class="chart-panel">
+    <div class="chart-wrap"><canvas id="chartCumulative"></canvas></div>
+  </div>
+
+  <div class="grid-2">
+    <div>
+      <div class="section-header">
+        <div class="section-title">Sismogramme journalier</div>
+        <div class="section-note">impulsions par jour</div>
+      </div>
+      <div class="chart-panel">
+        <div class="chart-wrap"><canvas id="chartDaily"></canvas></div>
+      </div>
+    </div>
+    <div>
+      <div class="section-header">
+        <div class="section-title">Releve hebdomadaire</div>
+        <div class="section-note">impulsions par semaine</div>
+      </div>
+      <div class="chart-panel">
+        <div class="chart-wrap"><canvas id="chartWeekly"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-header">
+    <div class="section-title">Carte de densite stellaire</div>
+    <div class="section-note">activite par jour — cercles proportionnels</div>
+  </div>
+  <div class="heatmap-container" id="heatmapContainer">
+    <div class="empty-state">Chargement de la carte...</div>
+  </div>
+
+  <div class="section-header">
+    <div class="section-title">Registre des observateurs</div>
+    <div class="section-note" id="stargazerCount">-- entrees</div>
+  </div>
+  <div class="stargazer-list" id="stargazerList">
+    <div class="empty-state">Consultation du registre...</div>
+  </div>
+
+  <div class="colophon">
+    <div class="colophon-left">Donnees en provenance de l'<a href="https://github.com/scub-france/Docling-Studio" target="_blank">API GitHub</a></div>
+    <div class="colophon-right">Observatoire MMXXVI</div>
+  </div>
+
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const REPO = 'scub-france/Docling-Studio';
+const API = `https://api.github.com/repos/${REPO}/stargazers`;
+
+let allStargazers = [];
+let filtered = [];
+let chartCumulative, chartDaily, chartWeekly;
+
+/* ═══ Chart.js plugins ═══ */
+const crosshairPlugin = {
+  id: 'crosshair',
+  afterDraw(chart) {
+    const active = chart.tooltip?.getActiveElements();
+    if (!active?.length) return;
+    const { ctx, chartArea: { top, bottom } } = chart;
+    const x = active[0].element.x;
+    ctx.save();
+    ctx.beginPath();
+    ctx.setLineDash([3, 3]);
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(201,162,39,0.5)';
+    ctx.moveTo(x, top);
+    ctx.lineTo(x, bottom);
+    ctx.stroke();
+    ctx.restore();
+  }
+};
+const glowPlugin = {
+  id: 'lineGlow',
+  beforeDatasetDraw(chart) {
+    if (chart.config.type !== 'line') return;
+    chart.ctx.save();
+    chart.ctx.shadowColor = 'rgba(139,37,0,0.3)';
+    chart.ctx.shadowBlur = 12;
+    chart.ctx.shadowOffsetY = 4;
+  },
+  afterDatasetDraw(chart) {
+    if (chart.config.type !== 'line') return;
+    chart.ctx.restore();
+  }
+};
+Chart.register(crosshairPlugin, glowPlugin);
+
+/* ═══ Helpers ═══ */
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+function animateNum(el, target) {
+  const dur = 900, start = performance.now();
+  const from = parseInt(el.textContent) || 0;
+  (function tick(now) {
+    const t = Math.min((now - start) / dur, 1);
+    el.textContent = Math.round(from + (target - from) * (1 - Math.pow(1 - t, 4)));
+    if (t < 1) requestAnimationFrame(tick);
+  })(start);
+}
+
+function groupByDay(list) {
+  const m = {};
+  list.forEach(s => { m[s.dateStr] = (m[s.dateStr] || 0) + 1; });
+  return m;
+}
+function getWeekStart(d) {
+  const dt = new Date(d.getTime()), day = dt.getDay();
+  dt.setDate(dt.getDate() - day + (day === 0 ? -6 : 1));
+  return dt.toISOString().split('T')[0];
+}
+function fmtDate(d) {
+  return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+/* ═══ Fetch ═══ */
+async function fetchAll() {
+  let page = 1, results = [];
+  while (true) {
+    const r = await fetch(`${API}?per_page=100&page=${page}`, {
+      headers: { 'Accept': 'application/vnd.github.v3.star+json' }
+    });
+    if (!r.ok) throw new Error(`API ${r.status}`);
+    const data = await r.json();
+    if (!data.length) break;
+    results.push(...data);
+    if (data.length < 100) break;
+    page++;
+  }
+  return results.map(s => ({
+    login: s.user.login, avatar: s.user.avatar_url,
+    url: s.user.html_url,
+    date: new Date(s.starred_at),
+    dateStr: s.starred_at.split('T')[0]
+  })).sort((a, b) => a.date - b.date);
+}
+
+async function refreshData() {
+  const btn = document.getElementById('btnRefresh');
+  btn.classList.add('spinning'); btn.disabled = true;
+  try {
+    allStargazers = await fetchAll();
+    applyFilter('all');
+    toast(`${allStargazers.length} etoiles chargees`);
+  } catch (e) { toast('Erreur : ' + e.message); }
+  finally { btn.classList.remove('spinning'); btn.disabled = false; }
+}
+
+/* ═══ Filters ═══ */
+function applyFilter(period) {
+  document.querySelectorAll('.filter-btn[data-period]').forEach(b =>
+    b.classList.toggle('active', b.dataset.period === String(period))
+  );
+  if (period === 'all') {
+    filtered = [...allStargazers];
+    if (allStargazers.length) {
+      document.getElementById('dateFrom').value = allStargazers[0].dateStr;
+      document.getElementById('dateTo').value = allStargazers[allStargazers.length - 1].dateStr;
+    }
+  } else {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - Number(period));
+    filtered = allStargazers.filter(s => s.date >= cutoff);
+    document.getElementById('dateFrom').value = cutoff.toISOString().split('T')[0];
+    document.getElementById('dateTo').value = new Date().toISOString().split('T')[0];
+  }
+  updateAll();
+}
+
+function applyDateRange() {
+  const from = document.getElementById('dateFrom').value;
+  const to = document.getElementById('dateTo').value;
+  if (!from || !to) return;
+  document.querySelectorAll('.filter-btn[data-period]').forEach(b => b.classList.remove('active'));
+  const f = new Date(from), t = new Date(to);
+  t.setHours(23, 59, 59);
+  filtered = allStargazers.filter(s => s.date >= f && s.date <= t);
+  updateAll();
+}
+
+document.querySelectorAll('.filter-btn[data-period]').forEach(btn =>
+  btn.addEventListener('click', () => applyFilter(btn.dataset.period))
+);
+document.getElementById('dateFrom').addEventListener('change', applyDateRange);
+document.getElementById('dateTo').addEventListener('change', applyDateRange);
+document.getElementById('btnRefresh').addEventListener('click', refreshData);
+
+/* ═══ Update all ═══ */
+function updateAll() {
+  updateHero();
+  updateStats();
+  updateCumulative();
+  updateDaily();
+  updateWeekly();
+  updateHeatmap();
+  updateList();
+}
+
+/* ── Hero ── */
+function updateHero() {
+  animateNum(document.getElementById('heroCount'), allStargazers.length);
+  const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
+  const thisWeek = allStargazers.filter(s => s.date >= weekAgo).length;
+  document.getElementById('heroBadge').querySelector('span').textContent = `+${thisWeek} cette semaine`;
+  if (allStargazers.length) {
+    const last = allStargazers[allStargazers.length - 1];
+    document.getElementById('heroMeta').textContent = `derniere observation : ${fmtDate(last.date)}`;
+  }
+}
+
+/* ── Stats (filtered) ── */
+function updateStats() {
+  const n = filtered.length;
+  document.getElementById('statTotal').textContent = n;
+  const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
+  document.getElementById('statThisWeek').textContent = filtered.filter(s => s.date >= weekAgo).length;
+  if (n > 1) {
+    const days = Math.max(1, (filtered[n-1].date - filtered[0].date) / 86400000);
+    document.getElementById('statAvg').textContent = (n / (days / 7)).toFixed(1);
+  } else {
+    document.getElementById('statAvg').textContent = '--';
+  }
+  const daily = groupByDay(filtered);
+  document.getElementById('statPeak').textContent = Math.max(0, ...Object.values(daily)) || '--';
+}
+
+/* ── Chart options ── */
+function chartOpts(yTitle) {
+  return {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#1a1915',
+        titleFont: { family: "'Space Grotesk'", size: 11 },
+        bodyFont: { family: "'Crimson Pro'", size: 12 },
+        cornerRadius: 2, padding: 8,
+        borderColor: 'rgba(201,162,39,0.3)', borderWidth: 1
+      }
+    },
+    scales: {
+      x: {
+        grid: { display: false },
+        border: { color: 'rgba(26,25,21,0.15)' },
+        ticks: {
+          font: { family: "'Space Grotesk'", size: 10 },
+          color: 'rgba(26,25,21,0.35)', maxTicksLimit: 12, maxRotation: 0
+        }
+      },
+      y: {
+        grid: { color: 'rgba(26,25,21,0.06)' },
+        border: { display: false },
+        ticks: {
+          font: { family: "'Space Grotesk'", size: 10 },
+          color: 'rgba(26,25,21,0.35)', precision: 0
+        },
+        title: {
+          display: true, text: yTitle,
+          font: { family: "'Crimson Pro'", size: 11, style: 'italic', weight: 300 },
+          color: 'rgba(26,25,21,0.35)'
+        }
+      }
+    },
+    interaction: { intersect: false, mode: 'index' }
+  };
+}
+
+/* ── Cumulative (with hatch pattern + glow) ── */
+function updateCumulative() {
+  if (!filtered.length) return;
+  const startIdx = allStargazers.indexOf(filtered[0]);
+  const daily = groupByDay(filtered);
+  const days = Object.keys(daily).sort();
+  let cumul = startIdx;
+  const values = days.map(d => { cumul += daily[d]; return cumul; });
+
+  const ctx = document.getElementById('chartCumulative');
+  if (chartCumulative) chartCumulative.destroy();
+
+  // Hatch pattern
+  const pc = document.createElement('canvas');
+  pc.width = 8; pc.height = 8;
+  const p = pc.getContext('2d');
+  p.strokeStyle = 'rgba(26,25,21,0.1)';
+  p.lineWidth = 1;
+  p.beginPath(); p.moveTo(0, 8); p.lineTo(8, 0); p.stroke();
+  p.beginPath(); p.moveTo(-2, 2); p.lineTo(2, -2); p.stroke();
+  p.beginPath(); p.moveTo(6, 10); p.lineTo(10, 6); p.stroke();
+  const pattern = ctx.getContext('2d').createPattern(pc, 'repeat');
+
+  chartCumulative = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: days,
+      datasets: [{
+        data: values,
+        borderColor: '#1a1915',
+        borderWidth: 2,
+        fill: true,
+        backgroundColor: pattern,
+        pointRadius: 0,
+        pointHoverRadius: 5,
+        pointHoverBackgroundColor: '#c9a227',
+        pointHoverBorderColor: '#1a1915',
+        pointHoverBorderWidth: 2,
+        tension: 0.3
+      }]
+    },
+    options: {
+      ...chartOpts('Etoiles cumulees'),
+      plugins: {
+        ...chartOpts('').plugins,
+        tooltip: {
+          ...chartOpts('').plugins.tooltip,
+          callbacks: {
+            title: items => {
+              const idx = items[0].dataIndex;
+              const day = days[idx];
+              const stars = filtered.filter(s => s.dateStr === day);
+              return stars.map(s => s.login).join(', ') || day;
+            },
+            label: item => `${item.raw} etoiles cumulees`
+          }
+        }
+      }
+    }
+  });
+}
+
+/* ── Daily sismograph ── */
+function updateDaily() {
+  const daily = groupByDay(filtered);
+  const days = Object.keys(daily).sort();
+  const ctx = document.getElementById('chartDaily');
+  if (chartDaily) chartDaily.destroy();
+  chartDaily = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: days,
+      datasets: [{
+        data: days.map(d => daily[d]),
+        backgroundColor: '#1a1915',
+        barPercentage: 0.15,
+        categoryPercentage: 1.0,
+        borderRadius: 0, borderSkipped: false
+      }]
+    },
+    options: chartOpts('Impulsions / jour')
+  });
+}
+
+/* ── Weekly ── */
+function updateWeekly() {
+  const weekly = {};
+  filtered.forEach(s => {
+    const w = getWeekStart(s.date);
+    weekly[w] = (weekly[w] || 0) + 1;
+  });
+  const weeks = Object.keys(weekly).sort();
+  const ctx = document.getElementById('chartWeekly');
+  if (chartWeekly) chartWeekly.destroy();
+
+  const maxVal = Math.max(...Object.values(weekly), 0);
+  const colors = weeks.map(w => weekly[w] === maxVal && maxVal > 0 ? '#8b2500' : 'rgba(139,37,0,0.25)');
+
+  chartWeekly = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: weeks.map(w => {
+        const d = new Date(w);
+        return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+      }),
+      datasets: [{
+        data: weeks.map(w => weekly[w]),
+        backgroundColor: colors,
+        barPercentage: 0.2,
+        categoryPercentage: 1.0,
+        borderRadius: 0, borderSkipped: false
+      }]
+    },
+    options: chartOpts('Impulsions / semaine')
+  });
+}
+
+/* ── Heatmap ── */
+function updateHeatmap() {
+  const container = document.getElementById('heatmapContainer');
+  const daily = groupByDay(filtered);
+  const maxVal = Math.max(1, ...Object.values(daily));
+
+  if (!filtered.length) {
+    container.innerHTML = '<div class="empty-state">Aucune observation sur cette periode</div>';
+    return;
+  }
+
+  // Use filtered date range, not hardcoded 52 weeks
+  const rangeFrom = new Date(document.getElementById('dateFrom').value + 'T00:00:00Z');
+  const rangeTo = new Date(document.getElementById('dateTo').value + 'T23:59:59Z');
+  const today = rangeTo > new Date() ? new Date() : rangeTo;
+
+  const start = new Date(rangeFrom);
+  // Align to previous Monday
+  while (start.getDay() !== 1) start.setDate(start.getDate() - 1);
+
+  const dayLabels = ['L', '', 'M', '', 'V', '', ''];
+  let labelsHtml = '<div class="heatmap-labels">';
+  dayLabels.forEach(d => { labelsHtml += `<div class="heatmap-label">${d}</div>`; });
+  labelsHtml += '</div>';
+
+  let gridHtml = '';
+  let monthsHtml = '';
+  const cur = new Date(start);
+  let prevMonth = -1;
+  let weekCount = 0;
+
+  while (cur <= today) {
+    const weekStart = new Date(cur);
+    if (weekStart.getMonth() !== prevMonth) {
+      monthsHtml += `<span class="heatmap-month" style="width:${weekStart.getMonth() !== prevMonth ? 'auto' : '16px'}">${weekStart.toLocaleDateString('fr-FR', { month: 'short' })}</span>`;
+      prevMonth = weekStart.getMonth();
+    }
+
+    gridHtml += '<div class="heatmap-column">';
+    for (let d = 0; d < 7; d++) {
+      if (cur > today) {
+        gridHtml += '<div class="heatmap-cell"></div>';
+      } else {
+        const ds = cur.toISOString().split('T')[0];
+        const count = daily[ds] || 0;
+        const size = count === 0 ? 2 : Math.max(4, Math.min(14, (count / maxVal) * 14));
+        const opacity = count === 0 ? 0.06 : Math.max(0.2, count / maxVal);
+        const color = count > maxVal * 0.5
+          ? `rgba(139,37,0,${opacity})`
+          : `rgba(26,25,21,${opacity})`;
+        gridHtml += `<div class="heatmap-cell" data-date="${ds}" data-count="${count}"><div class="heatmap-dot" style="width:${size}px;height:${size}px;background:${color};"></div></div>`;
+      }
+      cur.setDate(cur.getDate() + 1);
+    }
+    gridHtml += '</div>';
+    weekCount++;
+  }
+
+  container.innerHTML = `
+    <div class="heatmap-body">
+      ${labelsHtml}
+      <div class="heatmap-scroll">
+        <div class="heatmap-months">${monthsHtml}</div>
+        <div class="heatmap-grid">${gridHtml}</div>
+      </div>
+    </div>
+    <div class="heatmap-legend">
+      <span>moins</span>
+      <div class="sw" style="width:4px;height:4px;opacity:.15"></div>
+      <div class="sw" style="width:6px;height:6px;opacity:.3"></div>
+      <div class="sw" style="width:8px;height:8px;opacity:.5"></div>
+      <div class="sw" style="width:10px;height:10px;opacity:.75"></div>
+      <div class="sw" style="width:12px;height:12px;opacity:1;background:#8b2500"></div>
+      <span>plus</span>
+    </div>
+  `;
+
+  // Tooltips
+  const tip = document.getElementById('tooltip');
+  container.querySelectorAll('.heatmap-cell[data-date]').forEach(cell => {
+    cell.addEventListener('mouseenter', () => {
+      const c = cell.dataset.count;
+      const d = new Date(cell.dataset.date);
+      tip.textContent = `${d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })} — ${c} etoile${c > 1 ? 's' : ''}`;
+      tip.classList.add('visible');
+    });
+    cell.addEventListener('mousemove', e => {
+      tip.style.left = (e.clientX + 12) + 'px';
+      tip.style.top = (e.clientY - 8) + 'px';
+    });
+    cell.addEventListener('mouseleave', () => tip.classList.remove('visible'));
+  });
+}
+
+/* ── List ── */
+function updateList() {
+  const list = document.getElementById('stargazerList');
+  document.getElementById('stargazerCount').textContent = `${filtered.length} entrees`;
+
+  if (!filtered.length) {
+    list.innerHTML = '<div class="empty-state">Aucune observation sur cette periode</div>';
+    return;
+  }
+
+  const reversed = [...filtered].reverse();
+  list.innerHTML = reversed.map((s, i) => `
+    <div class="stargazer-row">
+      <div class="stargazer-index">${String(filtered.length - i).padStart(3, '0')}</div>
+      <img class="stargazer-avatar" src="${s.avatar}&s=56" alt="${s.login}" loading="lazy">
+      <div class="stargazer-name"><a href="${s.url}" target="_blank" rel="noopener">${s.login}</a></div>
+      <div class="stargazer-date">${fmtDate(s.date)}</div>
+    </div>
+  `).join('');
+}
+
+/* ═══ Boot ═══ */
+refreshData();
+</script>
+
+</body>
+</html>

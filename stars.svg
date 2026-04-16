@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 320" width="840" height="320">
+  <style>
+    text { font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; }
+  </style>
+  <defs>
+    <pattern id="h" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="6" stroke="rgba(26,25,21,0.07)" stroke-width="1"/>
+    </pattern>
+    <linearGradient id="lg" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#1a1915" stop-opacity="0.4"/>
+      <stop offset="30%" stop-color="#1a1915"/>
+      <stop offset="100%" stop-color="#8b2500"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="840" height="320" rx="4" fill="#f5f0e8"/>
+  <rect x=".5" y=".5" width="839" height="319" rx="4" fill="none" stroke="rgba(26,25,21,0.12)"/>
+
+  <!-- Header -->
+  <text x="60" y="32" font-size="11" font-weight="600" letter-spacing="0.14em" fill="#1a1915">OBSERVATOIRE</text>
+  <text x="165" y="32" font-size="11" fill="#c9a227" letter-spacing="0.08em">·</text>
+  <text x="178" y="32" font-size="11" font-weight="500" letter-spacing="0.06em" fill="rgba(26,25,21,0.45)">scub-france/Docling-Studio</text>
+
+  <!-- Count -->
+  <text x="800" y="30" font-size="34" font-weight="800" fill="#1a1915" text-anchor="end" letter-spacing="-0.02em">58</text>
+  <text x="800" y="46" font-size="10" fill="rgba(26,25,21,0.35)" text-anchor="end" font-style="italic">etoiles observees</text>
+
+  <!-- Weekly badge -->
+  <rect x="704" y="54" width="96" height="20" rx="2" fill="none" stroke="rgba(201,162,39,0.35)"/>
+  <text x="752" y="67" font-size="9" font-weight="600" fill="#c9a227" text-anchor="middle" letter-spacing="0.04em">↗ +24 THIS WEEK</text>
+
+  <line x1="60" y1="74" x2="800" y2="74" stroke="rgba(26,25,21,0.1)"/>
+
+  <line x1="60" y1="270.0" x2="800" y2="270.0" stroke="rgba(26,25,21,0.05)"/>
+  <text x="52" y="273.0" font-size="9" fill="rgba(26,25,21,0.3)" text-anchor="end" font-weight="500">0</text>
+  <line x1="60" y1="234.0" x2="800" y2="234.0" stroke="rgba(26,25,21,0.05)"/>
+  <text x="52" y="237.0" font-size="9" fill="rgba(26,25,21,0.3)" text-anchor="end" font-weight="500">11</text>
+  <line x1="60" y1="197.9" x2="800" y2="197.9" stroke="rgba(26,25,21,0.05)"/>
+  <text x="52" y="200.9" font-size="9" fill="rgba(26,25,21,0.3)" text-anchor="end" font-weight="500">22</text>
+  <line x1="60" y1="161.9" x2="800" y2="161.9" stroke="rgba(26,25,21,0.05)"/>
+  <text x="52" y="164.9" font-size="9" fill="rgba(26,25,21,0.3)" text-anchor="end" font-weight="500">33</text>
+  <line x1="60" y1="125.9" x2="800" y2="125.9" stroke="rgba(26,25,21,0.05)"/>
+  <text x="52" y="128.9" font-size="9" fill="rgba(26,25,21,0.3)" text-anchor="end" font-weight="500">44</text>
+  <line x1="60" y1="89.8" x2="800" y2="89.8" stroke="rgba(26,25,21,0.05)"/>
+  <text x="52" y="92.8" font-size="9" fill="rgba(26,25,21,0.3)" text-anchor="end" font-weight="500">55</text>
+  <line x1="60" y1="80.0" x2="800" y2="80.0" stroke="rgba(26,25,21,0.05)"/>
+  <text x="52" y="83.0" font-size="9" fill="rgba(26,25,21,0.3)" text-anchor="end" font-weight="500">58</text>
+  <text x="60.0" y="288" font-size="9" fill="rgba(26,25,21,0.3)" font-weight="500" letter-spacing="0.03em">Jul 25</text>
+  <text x="127.2" y="288" font-size="9" fill="rgba(26,25,21,0.3)" font-weight="500" letter-spacing="0.03em">Aug 25</text>
+  <text x="184.5" y="288" font-size="9" fill="rgba(26,25,21,0.3)" font-weight="500" letter-spacing="0.03em">Sep 25</text>
+  <text x="557.2" y="288" font-size="9" fill="rgba(26,25,21,0.3)" font-weight="500" letter-spacing="0.03em">Jan 26</text>
+  <text x="756.6" y="288" font-size="9" fill="rgba(26,25,21,0.3)" font-weight="500" letter-spacing="0.03em">Mar 26</text>
+  <text x="758.9" y="288" font-size="9" fill="rgba(26,25,21,0.3)" font-weight="500" letter-spacing="0.03em">Apr 26</text>
+
+  <line x1="60" y1="80" x2="60" y2="270" stroke="rgba(26,25,21,0.12)"/>
+  <line x1="60" y1="270" x2="800" y2="270" stroke="rgba(26,25,21,0.12)"/>
+
+  <path d="M 60.0,270 L 60.0,266.7 L 62.4,263.4 L 127.2,260.2 L 140.9,256.9 L 184.5,253.6 L 557.2,250.3 L 756.6,247.1 L 757.3,243.8 L 757.3,240.5 L 757.4,237.2 L 757.5,234.0 L 757.8,230.7 L 757.9,227.4 L 758.0,224.1 L 758.9,220.9 L 759.7,217.6 L 761.9,214.3 L 763.1,211.0 L 764.4,207.8 L 765.5,204.5 L 767.5,201.2 L 770.0,197.9 L 772.0,194.7 L 772.5,191.4 L 772.9,188.1 L 773.9,184.8 L 775.8,181.6 L 778.4,178.3 L 778.5,175.0 L 778.5,171.7 L 778.6,168.4 L 778.6,165.2 L 779.4,161.9 L 780.4,158.6 L 781.7,155.3 L 782.1,152.1 L 783.5,148.8 L 784.5,145.5 L 785.1,142.2 L 786.0,139.0 L 787.0,135.7 L 787.5,132.4 L 787.5,129.1 L 787.9,125.9 L 789.3,122.6 L 792.5,119.3 L 792.9,116.0 L 793.5,112.8 L 794.8,109.5 L 795.3,106.2 L 795.5,102.9 L 796.5,99.7 L 797.5,96.4 L 797.6,93.1 L 798.0,89.8 L 798.6,86.6 L 799.6,83.3 L 800.0,80.0 L 800.0,270 Z" fill="url(#h)"/>
+  <polyline points="60.0,266.7 62.4,263.4 127.2,260.2 140.9,256.9 184.5,253.6 557.2,250.3 756.6,247.1 757.3,243.8 757.3,240.5 757.4,237.2 757.5,234.0 757.8,230.7 757.9,227.4 758.0,224.1 758.9,220.9 759.7,217.6 761.9,214.3 763.1,211.0 764.4,207.8 765.5,204.5 767.5,201.2 770.0,197.9 772.0,194.7 772.5,191.4 772.9,188.1 773.9,184.8 775.8,181.6 778.4,178.3 778.5,175.0 778.5,171.7 778.6,168.4 778.6,165.2 779.4,161.9 780.4,158.6 781.7,155.3 782.1,152.1 783.5,148.8 784.5,145.5 785.1,142.2 786.0,139.0 787.0,135.7 787.5,132.4 787.5,129.1 787.9,125.9 789.3,122.6 792.5,119.3 792.9,116.0 793.5,112.8 794.8,109.5 795.3,106.2 795.5,102.9 796.5,99.7 797.5,96.4 797.6,93.1 798.0,89.8 798.6,86.6 799.6,83.3 800.0,80.0" fill="none" stroke="url(#lg)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+
+  <circle cx="800.0" cy="80.0" r="4.5" fill="#8b2500"/>
+  <circle cx="800.0" cy="80.0" r="2" fill="#f5f0e8"/>
+  <circle cx="757.4" cy="237.2" r="2.5" fill="#c9a227" opacity="0.8"/>
+  <text x="763.4" y="240.2" font-size="8" fill="#c9a227" font-weight="600">10</text>
+  <circle cx="772.9" cy="188.1" r="2.5" fill="#c9a227" opacity="0.8"/>
+  <text x="778.9" y="191.1" font-size="8" fill="#c9a227" font-weight="600">25</text>
+  <circle cx="795.3" cy="106.2" r="2.5" fill="#c9a227" opacity="0.8"/>
+  <text x="801.3" y="109.2" font-size="8" fill="#c9a227" font-weight="600">50</text>
+
+  <line x1="60" y1="302" x2="800" y2="302" stroke="rgba(26,25,21,0.06)"/>
+  <text x="60" y="314" font-size="8" fill="rgba(26,25,21,0.25)" font-style="italic">1.5 etoiles/sem · maj 16 Apr 2026 07:31 UTC</text>
+  <text x="800" y="314" font-size="7" fill="rgba(26,25,21,0.18)" text-anchor="end" letter-spacing="0.1em">OBSERVATOIRE MMXXVI</text>
+
+</svg>

@@ -1,0 +1,36 @@
+name: Update star chart
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'   # toutes les 6h
+  workflow_dispatch:          # lancement manuel possible
+  watch:
+    types: [started]          # quand quelqu'un star le repo
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Generate SVG
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: scub-france/Docling-Studio
+          OUTPUT: stars.svg
+        run: python generate_svg.py
+
+      - name: Commit & push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add stars.svg
+          git diff --staged --quiet || git commit -m "chore: update star chart [skip ci]"
+          git push
