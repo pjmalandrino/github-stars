@@ -27,7 +27,7 @@
 
   <!-- Weekly badge -->
   <rect x="704" y="54" width="96" height="20" rx="2" fill="none" stroke="rgba(201,162,39,0.35)"/>
-  <text x="752" y="67" font-size="9" font-weight="600" fill="#c9a227" text-anchor="middle" letter-spacing="0.04em">↗ +25 THIS WEEK</text>
+  <text x="752" y="67" font-size="9" font-weight="600" fill="#c9a227" text-anchor="middle" letter-spacing="0.04em">↗ +24 THIS WEEK</text>
 
   <line x1="60" y1="74" x2="800" y2="74" stroke="rgba(26,25,21,0.1)"/>
 
@@ -68,7 +68,7 @@
   <text x="799.3" y="117.3" font-size="8" fill="#c9a227" font-weight="600">50</text>
 
   <line x1="60" y1="302" x2="800" y2="302" stroke="rgba(26,25,21,0.06)"/>
-  <text x="60" y="314" font-size="8" fill="rgba(26,25,21,0.25)" font-style="italic">1.6 etoiles/sem · maj 17 Apr 2026 02:34 UTC</text>
+  <text x="60" y="314" font-size="8" fill="rgba(26,25,21,0.25)" font-style="italic">1.6 etoiles/sem · maj 17 Apr 2026 07:46 UTC</text>
   <text x="800" y="314" font-size="7" fill="rgba(26,25,21,0.18)" text-anchor="end" letter-spacing="0.1em">OBSERVATOIRE MMXXVI</text>
 
 </svg>
