@@ -19,6 +19,7 @@ import json
 import os
 import subprocess
 import sys
+from collections import Counter
 from datetime import datetime, timezone
 from urllib.request import Request, urlopen
 
@@ -74,8 +75,8 @@ def generate_svg(stars):
         print("No stars found.")
         return
 
-    W, H = 840, 320
-    pt, pb, pl, pr = 80, 50, 60, 40
+    W, H = 840, 420
+    pt, pb, pl, pr = 170, 50, 60, 40
     cw = W - pl - pr
     ch = H - pt - pb
 
@@ -116,6 +117,8 @@ def generate_svg(stars):
     this_week = sum(1 for d in dates if (now - d).total_seconds() < 7 * 86400)
     days_span = max(1, (last - first).days)
     per_week = total / (days_span / 7)
+    daily_counts = Counter(d.strftime("%Y-%m-%d") for d in dates)
+    peak_daily = max(daily_counts.values()) if daily_counts else 0
     gen_time = now.strftime("%d %b %Y %H:%M UTC")
 
     # Milestones
@@ -153,7 +156,27 @@ def generate_svg(stars):
   <rect x="{W-pr-96}" y="54" width="96" height="20" rx="2" fill="none" stroke="rgba(201,162,39,0.35)"/>
   <text x="{W-pr-48}" y="67" font-size="9" font-weight="600" fill="#c9a227" text-anchor="middle" letter-spacing="0.04em">\u2197 +{this_week} THIS WEEK</text>
 
-  <line x1="{pl}" y1="{pt-6}" x2="{W-pr}" y2="{pt-6}" stroke="rgba(26,25,21,0.1)"/>
+  <line x1="{pl}" y1="90" x2="{W-pr}" y2="90" stroke="rgba(26,25,21,0.1)"/>
+
+  <!-- Stats row -->
+'''
+
+    cards = [
+        (str(total), "sur la periode"),
+        (f"+{this_week}", "cette semaine"),
+        (f"{per_week:.1f}", "moy. / semaine"),
+        (str(peak_daily), "pic journalier"),
+    ]
+    cell_w = (W - pl - pr) / 4
+    for i, (value, label) in enumerate(cards):
+        cx = pl + cell_w * i + cell_w / 2
+        if i > 0:
+            svg += f'  <line x1="{pl + cell_w * i:.1f}" y1="98" x2="{pl + cell_w * i:.1f}" y2="152" stroke="rgba(26,25,21,0.1)"/>\n'
+        svg += f'  <text x="{cx:.1f}" y="128" font-size="26" font-weight="600" fill="#1a1915" text-anchor="middle" letter-spacing="-0.02em">{value}</text>\n'
+        svg += f'  <text x="{cx:.1f}" y="146" font-size="11" fill="rgba(26,25,21,0.4)" text-anchor="middle" font-style="italic">{label}</text>\n'
+
+    svg += f'''
+  <line x1="{pl}" y1="160" x2="{W-pr}" y2="160" stroke="rgba(26,25,21,0.1)"/>
 
 '''
 
