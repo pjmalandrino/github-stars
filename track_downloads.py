@@ -1,69 +1,92 @@
 #!/usr/bin/env python3
 """
-Append a daily snapshot of total GitHub release downloads to downloads.json.
+Scrape total + last-30-days download counts from a GHCR container package page
+and merge into downloads.json.
+
+The GitHub Packages REST API does not expose download counts for containers.
+The public package page embeds the cumulative total in an <h3> and the per-day
+counts of the last 30 days as SVG <rect> nodes with data-date / data-merge-count
+attributes. We extract both.
+
+Running the script periodically preserves days that fall out of the 30-day
+window in the on-disk history.
 
 Env:
-    REPO            default: scub-france/Docling-Studio
-    OUTPUT          default: downloads.json
-    GITHUB_TOKEN    required in CI to avoid rate limits
+    PACKAGE_URL   default: https://github.com/scub-france/Docling-Studio/pkgs/container/docling-studio
+    OUTPUT        default: downloads.json
 """
 
 import json
 import os
+import re
 from datetime import datetime, timezone
 from urllib.request import Request, urlopen
 
-REPO = os.environ.get("DOWNLOADS_REPO", os.environ.get("REPO", "scub-france/Docling-Studio"))
+PACKAGE_URL = os.environ.get(
+    "PACKAGE_URL",
+    "https://github.com/scub-france/Docling-Studio/pkgs/container/docling-studio",
+)
 OUTPUT = os.environ.get("DOWNLOADS_FILE", "downloads.json")
 
+TOTAL_RE = re.compile(r"Total downloads</span>\s*<h3[^>]*>(\d+)</h3>")
+RECT_RE = re.compile(
+    r'data-merge-count="(\d+)"\s+data-date="(\d{4}-\d{2}-\d{2})"'
+)
 
-def fetch_total():
-    token = os.environ.get("GITHUB_TOKEN")
-    headers = {"Accept": "application/vnd.github+json", "User-Agent": "downloads-tracker"}
-    if token:
-        headers["Authorization"] = f"token {token}"
 
-    total = 0
-    page = 1
-    while True:
-        req = Request(
-            f"https://api.github.com/repos/{REPO}/releases?per_page=100&page={page}",
-            headers=headers,
-        )
-        with urlopen(req) as resp:
-            data = json.loads(resp.read().decode())
-        if not data:
-            break
-        for rel in data:
-            for asset in rel.get("assets", []):
-                total += asset.get("download_count", 0)
-        if len(data) < 100:
-            break
-        page += 1
-    return total
+def fetch_page():
+    req = Request(
+        PACKAGE_URL,
+        headers={
+            "User-Agent": "Mozilla/5.0 (downloads-tracker)",
+            "Accept": "text/html,application/xhtml+xml",
+        },
+    )
+    with urlopen(req, timeout=30) as resp:
+        return resp.read().decode("utf-8", errors="replace")
+
+
+def parse(html):
+    m = TOTAL_RE.search(html)
+    if not m:
+        raise RuntimeError("Could not find 'Total downloads' on package page")
+    total = int(m.group(1))
+
+    daily = {date: int(count) for count, date in RECT_RE.findall(html)}
+    return total, daily
 
 
 def main():
-    total = fetch_total()
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    html = fetch_page()
+    total, new_daily = parse(html)
     path = os.path.join(os.path.dirname(os.path.abspath(__file__)), OUTPUT)
 
     try:
         with open(path) as f:
-            history = json.load(f)
+            data = json.load(f)
+        if not isinstance(data, dict):
+            data = {}
     except FileNotFoundError:
-        history = []
+        data = {}
 
-    if history and history[-1]["date"] == today:
-        history[-1]["total"] = total
-    else:
-        history.append({"date": today, "total": total})
+    merged = {d["date"]: d["count"] for d in data.get("daily", [])}
+    merged.update(new_daily)
+
+    daily_sorted = [
+        {"date": d, "count": merged[d]} for d in sorted(merged)
+    ]
+
+    out = {
+        "total": total,
+        "fetched_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "daily": daily_sorted,
+    }
 
     with open(path, "w") as f:
-        json.dump(history, f, indent=2)
+        json.dump(out, f, indent=2)
         f.write("\n")
 
-    print(f"{today}: {total} total downloads ({len(history)} snapshots)")
+    print(f"total={total}, daily_entries={len(daily_sorted)}")
 
 
 if __name__ == "__main__":

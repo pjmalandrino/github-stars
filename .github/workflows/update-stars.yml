@@ -27,10 +27,9 @@ jobs:
           OUTPUT: stars.svg
         run: python generate_svg.py
 
-      - name: Track release downloads
+      - name: Track container downloads
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DOWNLOADS_REPO: scub-france/Docling-Studio
+          PACKAGE_URL: https://github.com/scub-france/Docling-Studio/pkgs/container/docling-studio
           DOWNLOADS_FILE: downloads.json
         run: python track_downloads.py
 
