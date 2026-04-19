@@ -1,6 +1,6 @@
 # Observatoire — Docling-Studio Stars
 
-[![Star History](https://raw.githubusercontent.com/pjmalandrino/github-stars/main/stars.svg?v=2)](https://github.com/scub-france/Docling-Studio/stargazers)
+[![Star History](https://raw.githubusercontent.com/pjmalandrino/docling-studio-landing/main/stars.svg?v=2)](https://github.com/scub-france/Docling-Studio/stargazers)
 
 Dashboard interactif et chart SVG embeddable pour suivre les stars de [scub-france/Docling-Studio](https://github.com/scub-france/Docling-Studio).
 
@@ -8,7 +8,7 @@ Dashboard interactif et chart SVG embeddable pour suivre les stars de [scub-fran
 
 Ouvrir [`index.html`](index.html) dans un navigateur — les donnees sont chargees en live depuis l'API GitHub.
 
-**[Voir le dashboard en ligne](https://pjmalandrino.github.io/github-stars/)**
+**[Voir le dashboard en ligne](https://pjmalandrino.github.io/docling-studio-landing/)**
 
 ## SVG embeddable
 
@@ -23,7 +23,7 @@ python generate_svg.py
 ### Utiliser dans un README
 
 ```markdown
-[![Star History](https://raw.githubusercontent.com/pjmalandrino/github-stars/main/stars.svg)](https://github.com/scub-france/Docling-Studio/stargazers)
+[![Star History](https://raw.githubusercontent.com/pjmalandrino/docling-studio-landing/main/stars.svg)](https://github.com/scub-france/Docling-Studio/stargazers)
 ```
 
 ## Stack

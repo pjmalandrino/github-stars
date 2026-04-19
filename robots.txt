@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://pjmalandrino.github.io/github-stars/sitemap.xml
+Sitemap: https://pjmalandrino.github.io/docling-studio-landing/sitemap.xml
