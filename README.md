@@ -1,6 +1,6 @@
 # Observatoire — Docling-Studio Stars
 
-[![Star History](https://raw.githubusercontent.com/pjmalandrino/github-stars/main/stars.svg)](https://github.com/scub-france/Docling-Studio/stargazers)
+[![Star History](https://raw.githubusercontent.com/pjmalandrino/github-stars/main/stars.svg?v=2)](https://github.com/scub-france/Docling-Studio/stargazers)
 
 Dashboard interactif et chart SVG embeddable pour suivre les stars de [scub-france/Docling-Studio](https://github.com/scub-france/Docling-Studio).
 
