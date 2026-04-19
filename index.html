@@ -1,12 +1,65 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Observatoire — Docling-Studio Stargazers</title>
+<meta name="theme-color" content="#1a1915">
+
+<title>Docling Studio — Visual debugger for Docling RAG pipelines</title>
+<meta name="description" content="Open-source visual studio to inspect, debug and repair Docling-based RAG pipelines. Validate OCR extraction, chunking and vector-store retrieval from one tool.">
+<meta name="keywords" content="Docling, Docling Studio, RAG debugger, OCR debug, chunking inspection, vector store, retrieval augmented generation, PDF extraction, hexagonal architecture, Docling Serve, OpenSearch, Neo4j">
+<meta name="author" content="SCUB">
+<meta name="robots" content="index, follow, max-image-preview:large">
+
+<link rel="canonical" href="https://pjmalandrino.github.io/github-stars/">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Docling Studio">
+<meta property="og:title" content="Docling Studio — Visual debugger for Docling RAG pipelines">
+<meta property="og:description" content="Open-source visual studio to inspect, debug and repair Docling-based RAG pipelines. Validate OCR, chunking and vector retrieval — visually.">
+<meta property="og:url" content="https://pjmalandrino.github.io/github-stars/">
+<meta property="og:image" content="https://pjmalandrino.github.io/github-stars/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_US">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Docling Studio — Visual debugger for Docling RAG pipelines">
+<meta name="twitter:description" content="Inspect OCR extraction, chunking and vector retrieval for Docling-based RAG pipelines — visually.">
+<meta name="twitter:image" content="https://pjmalandrino.github.io/github-stars/og-image.png">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Serif+Display&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Serif+Display&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Docling Studio",
+  "applicationCategory": "DeveloperApplication",
+  "applicationSubCategory": "RAG pipeline debugger",
+  "operatingSystem": "Cross-platform (Docker)",
+  "description": "Open-source visual studio to inspect, debug and repair Docling-based RAG pipelines. Validate OCR extraction, chunking strategies and vector-store retrieval from one tool.",
+  "url": "https://pjmalandrino.github.io/github-stars/",
+  "softwareRequirements": "Docker",
+  "codeRepository": "https://github.com/scub-france/Docling-Studio",
+  "license": "https://opensource.org/licenses/MIT",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "author": {
+    "@type": "Organization",
+    "name": "SCUB",
+    "url": "https://www.scub.net",
+    "email": "pierjean.malandrino@scub.net"
+  },
+  "keywords": "Docling, RAG, OCR, chunking, vector store, retrieval, pipeline debugger"
+}
+</script>
+
 <style>
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -14,6 +67,7 @@
   --ivory: #f5f0e8;
   --ivory-dark: #e8e0d0;
   --charcoal: #1a1915;
+  --charcoal-soft: #2a2924;
   --gold: #c9a227;
   --gold-dim: rgba(201,162,39,0.15);
   --red: #8b2500;
@@ -23,6 +77,7 @@
   --font-hero: 'DM Serif Display', Georgia, serif;
   --font-display: 'Space Grotesk', system-ui, sans-serif;
   --font-body: 'Crimson Pro', Georgia, serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 html { scroll-behavior: smooth; }
@@ -31,12 +86,11 @@ body {
   background: var(--ivory);
   color: var(--charcoal);
   font-family: var(--font-body);
-  font-size: 16px;
-  line-height: 1.55;
+  font-size: 17px;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Grain */
 body::after {
   content: '';
   position: fixed; inset: 0;
@@ -44,307 +98,443 @@ body::after {
   pointer-events: none; z-index: 9999;
 }
 
-.observatory { max-width: 1120px; margin: 0 auto; padding: 0 32px; }
+.skip-link {
+  position: absolute; left: -999px; top: 0;
+  background: var(--charcoal); color: var(--ivory);
+  padding: 10px 16px; z-index: 10000;
+  font-family: var(--font-display); font-size: 12px;
+}
+.skip-link:focus { left: 10px; top: 10px; }
 
-/* ── Cartouche / header ── */
-.cartouche {
-  padding: 40px 0 28px;
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 32px; }
+
+/* ── Top nav ── */
+.topnav {
+  padding: 28px 0 20px;
   display: flex; align-items: baseline; justify-content: space-between;
   border-bottom: 1px solid var(--filet);
+  flex-wrap: wrap; gap: 16px;
 }
-.cartouche-title {
+.brand {
   font-family: var(--font-display);
   font-size: 13px; font-weight: 500;
   letter-spacing: 0.18em; text-transform: uppercase;
+  text-decoration: none; color: var(--charcoal);
 }
-.cartouche-title span { color: var(--gold); margin: 0 6px; }
-.cartouche-sub {
-  font-family: var(--font-body);
-  font-size: 13px; font-style: italic;
-  color: rgba(26,25,21,0.5); font-weight: 300;
+.brand span { color: var(--gold); margin: 0 6px; }
+.topnav-links {
+  display: flex; gap: 28px; align-items: baseline;
+  font-family: var(--font-display);
+  font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase;
 }
+.topnav-links a {
+  color: rgba(26,25,21,0.55); text-decoration: none;
+  transition: color .2s;
+}
+.topnav-links a:hover { color: var(--charcoal); }
+.topnav-links a.accent { color: var(--charcoal); font-weight: 500; }
 
-/* ── Hero card ── */
+/* ── Hero ── */
 .hero {
   background: var(--charcoal);
-  margin: 32px 0;
-  padding: 48px 56px;
+  color: var(--ivory);
+  margin: 32px 0 48px;
+  padding: 72px 64px 64px;
   border-radius: 2px;
   position: relative; overflow: hidden;
-  display: grid; grid-template-columns: 1fr 1px 1fr;
-  gap: 48px; align-items: stretch;
 }
 .hero::before {
   content: '';
   position: absolute;
-  top: -80px; right: -80px;
-  width: 320px; height: 320px;
-  background: radial-gradient(circle, rgba(139,37,0,0.35) 0%, rgba(201,162,39,0.12) 40%, transparent 70%);
+  top: -120px; right: -120px;
+  width: 480px; height: 480px;
+  background: radial-gradient(circle, rgba(139,37,0,0.32) 0%, rgba(201,162,39,0.1) 45%, transparent 75%);
   border-radius: 50%;
-  animation: orbe 4s ease-in-out infinite;
+  animation: orbe 5s ease-in-out infinite;
   pointer-events: none;
 }
 @keyframes orbe {
   0%,100% { opacity: .7; transform: scale(1); }
   50% { opacity: 1; transform: scale(1.08); }
 }
-.hero-divider {
-  width: 1px; background: rgba(245,240,232,0.12);
-  position: relative; z-index: 1; align-self: stretch;
-}
-.hero-panel { position: relative; z-index: 1; display: flex; flex-direction: column; justify-content: center; }
 .hero-eyebrow {
   font-family: var(--font-display);
   font-size: 11px; font-weight: 500;
-  letter-spacing: 0.18em; text-transform: uppercase;
-  color: var(--gold); margin-bottom: 14px;
-  display: flex; align-items: center; gap: 8px;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 24px;
+  position: relative; z-index: 1;
 }
-.hero-eyebrow svg { width: 12px; height: 12px; }
-.hero-count {
+.hero h1 {
   font-family: var(--font-hero);
-  font-size: 6.5rem;
-  color: var(--ivory);
-  line-height: .9;
+  font-size: clamp(3.5rem, 8vw, 6rem);
+  line-height: .95;
   letter-spacing: -0.02em;
-  display: flex; align-items: baseline;
+  position: relative; z-index: 1;
+  margin-bottom: 20px;
 }
-.hero-cursor {
-  display: inline-block; width: 3px; height: 4.6rem;
-  background: var(--gold);
-  margin-left: 6px; border-radius: 1px;
-  animation: blink 1s steps(1) infinite;
-}
-@keyframes blink { 0%,50%{opacity:1} 51%,100%{opacity:0} }
-.hero-label {
+.hero-tagline {
   font-family: var(--font-body);
-  font-size: 14px;
-  color: rgba(245,240,232,0.45);
-  margin-top: 8px; font-style: italic; font-weight: 300;
+  font-size: clamp(1.2rem, 2.2vw, 1.55rem);
+  font-style: italic; font-weight: 300;
+  max-width: 620px;
+  color: rgba(245,240,232,0.82);
+  position: relative; z-index: 1;
+  margin-bottom: 40px;
 }
-.hero-delta {
-  display: inline-flex; align-items: center; gap: 6px;
+.cta-row {
+  display: flex; gap: 16px; flex-wrap: wrap;
+  position: relative; z-index: 1;
+}
+.cta {
   font-family: var(--font-display);
-  font-size: 12px; font-weight: 500;
-  color: var(--gold);
-  border: 1px solid rgba(201,162,39,0.3);
-  padding: 5px 12px; border-radius: 2px;
-  letter-spacing: 0.04em; margin-top: 16px;
-}
-.hero-delta svg { width: 11px; height: 11px; }
-.hero-meta {
-  font-family: var(--font-body);
-  font-size: 12px;
-  color: rgba(245,240,232,0.3);
-  margin-top: 10px; font-style: italic;
-}
-
-/* ── Controls ── */
-.controls {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 20px 0; border-bottom: 1px solid var(--filet);
-  flex-wrap: wrap; gap: 12px;
-}
-.filter-group {
-  display: flex; align-items: center; gap: 0;
-}
-.filter-group label {
-  font-family: var(--font-body);
-  font-size: 13px; font-style: italic;
-  color: rgba(26,25,21,0.5); margin-right: 12px; font-weight: 300;
-}
-.filter-btn {
-  font-family: var(--font-display);
-  font-size: 12px; font-weight: 500;
-  letter-spacing: 0.06em; text-transform: uppercase;
-  background: none; border: 1px solid var(--filet); border-right: none;
-  padding: 7px 14px; color: rgba(26,25,21,0.55);
-  cursor: pointer; transition: all 0.2s;
-}
-.filter-btn:last-of-type { border-right: 1px solid var(--filet); }
-.filter-btn:hover { color: var(--charcoal); background: rgba(26,25,21,0.04); }
-.filter-btn.active {
-  background: var(--charcoal); color: var(--ivory); border-color: var(--charcoal);
-}
-.filter-btn.active + .filter-btn { border-left-color: var(--charcoal); }
-.date-inputs {
-  display: flex; align-items: center; gap: 8px; margin-left: 16px;
-}
-.date-inputs input[type="date"] {
-  font-family: var(--font-display);
-  font-size: 12px; border: 1px solid var(--filet);
-  padding: 6px 10px; background: transparent;
-  color: var(--charcoal); border-radius: 2px; outline: none;
-  transition: border-color 0.2s;
-}
-.date-inputs input[type="date"]:focus { border-color: var(--gold); }
-.date-inputs span {
-  font-family: var(--font-body);
-  font-size: 13px; font-style: italic;
-  color: rgba(26,25,21,0.4);
-}
-.btn-refresh {
-  font-family: var(--font-display);
-  font-size: 12px; font-weight: 500;
+  font-size: 13px; font-weight: 500;
   letter-spacing: 0.08em; text-transform: uppercase;
-  background: none; border: 1px solid var(--charcoal);
-  padding: 7px 18px; color: var(--charcoal);
-  cursor: pointer; display: flex; align-items: center;
-  gap: 8px; transition: all 0.2s; border-radius: 2px;
+  padding: 14px 28px;
+  text-decoration: none;
+  border-radius: 2px;
+  display: inline-flex; align-items: center; gap: 10px;
+  transition: all .2s;
 }
-.btn-refresh:hover { background: var(--charcoal); color: var(--ivory); }
-.btn-refresh svg { width: 14px; height: 14px; }
-.btn-refresh.spinning svg { animation: spin .8s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
+.cta svg { width: 14px; height: 14px; }
+.cta-primary {
+  background: var(--gold); color: var(--charcoal);
+  border: 1px solid var(--gold);
+}
+.cta-primary:hover { background: #e0b63d; border-color: #e0b63d; }
+.cta-secondary {
+  background: transparent; color: var(--ivory);
+  border: 1px solid rgba(245,240,232,0.35);
+}
+.cta-secondary:hover { border-color: var(--ivory); background: rgba(245,240,232,0.06); }
+.hero-badges {
+  margin-top: 36px;
+  display: flex; gap: 10px; flex-wrap: wrap;
+  position: relative; z-index: 1;
+  font-family: var(--font-display); font-size: 11px;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: rgba(245,240,232,0.5);
+}
+.hero-badges .badge {
+  padding: 5px 10px;
+  border: 1px solid rgba(245,240,232,0.15);
+  border-radius: 2px;
+}
 
-/* ── Two-column layout ── */
-.two-col {
-  display: grid; grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1fr);
+/* ── Section ── */
+section { padding: 64px 0; border-bottom: 1px solid var(--filet); }
+section:last-of-type { border-bottom: none; }
+
+.section-eyebrow {
+  font-family: var(--font-display);
+  font-size: 11px; font-weight: 500;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 16px;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-eyebrow::before {
+  content: ''; display: inline-block;
+  width: 24px; height: 1px; background: var(--gold);
+}
+h2 {
+  font-family: var(--font-hero);
+  font-size: clamp(2rem, 4vw, 2.7rem);
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+  margin-bottom: 24px;
+  max-width: 720px;
+}
+h3 {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  margin-bottom: 8px;
+}
+section p {
+  font-size: 1.08rem;
+  max-width: 680px;
+  color: rgba(26,25,21,0.78);
+}
+section p + p { margin-top: 14px; }
+
+/* ── Problem section ── */
+.problem p {
+  font-size: 1.2rem;
+  line-height: 1.55;
+  max-width: 760px;
+  color: rgba(26,25,21,0.82);
+}
+.problem p em { font-style: italic; color: var(--red); font-weight: 500; }
+
+/* ── Cards ── */
+.cards {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 20px; margin-top: 40px;
+}
+.card {
+  background: var(--ivory);
+  border: 1px solid var(--filet);
+  border-radius: 2px;
+  padding: 28px 26px 32px;
+  display: flex; flex-direction: column;
+  position: relative;
+  transition: border-color .2s, transform .2s;
+}
+.card:hover { border-color: var(--charcoal); transform: translateY(-2px); }
+.card.soon { opacity: 0.45; pointer-events: none; }
+.card-badge {
+  position: absolute; top: 16px; right: 16px;
+  font-family: var(--font-display);
+  font-size: 9px; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  padding: 4px 9px;
+  border-radius: 2px;
+  background: var(--gold-dim); color: var(--red);
+  border: 1px solid rgba(139,37,0,0.25);
+}
+.card-badge.active {
+  background: var(--charcoal); color: var(--ivory);
+  border-color: var(--charcoal);
+}
+.card-illus {
+  height: 130px;
+  margin-bottom: 20px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, rgba(26,25,21,0.04), rgba(26,25,21,0.01));
+  border: 1px dashed var(--filet);
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+}
+.card-illus svg { width: 100%; height: 100%; padding: 18px; }
+.card h3 { margin-bottom: 10px; }
+.card-flow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: rgba(26,25,21,0.55);
+  letter-spacing: 0.02em;
+  margin-bottom: 14px;
+  line-height: 1.7;
+}
+.card-flow .arrow { color: var(--gold); margin: 0 4px; }
+.card p {
+  font-size: 0.98rem;
+  color: rgba(26,25,21,0.72);
+  margin: 0;
+}
+
+/* ── Deployment ── */
+.deploy-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 24px; margin-top: 32px;
+}
+.deploy-card {
+  border: 1px solid var(--filet);
+  border-radius: 2px;
+  padding: 28px;
+  background: var(--ivory);
+}
+.deploy-card h3 {
+  display: flex; align-items: baseline; gap: 12px;
+  margin-bottom: 8px;
+}
+.deploy-card h3 .tag {
+  font-family: var(--font-display);
+  font-size: 10px; font-weight: 500;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--gold);
+  padding: 3px 8px;
+  border: 1px solid rgba(201,162,39,0.4);
+  border-radius: 2px;
+}
+.deploy-card > p {
+  font-size: 0.98rem;
+  color: rgba(26,25,21,0.7);
+  margin-bottom: 20px;
+}
+pre.code {
+  background: var(--charcoal);
+  color: var(--ivory);
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.65;
+  padding: 18px 20px;
+  border-radius: 2px;
+  overflow-x: auto;
+  position: relative;
+}
+pre.code::-webkit-scrollbar { height: 4px; }
+pre.code::-webkit-scrollbar-thumb { background: rgba(245,240,232,0.2); }
+pre.code .tok-flag { color: var(--gold); }
+pre.code .tok-str { color: #e8b87a; }
+pre.code .tok-comment { color: rgba(245,240,232,0.4); font-style: italic; }
+.copy-btn {
+  position: absolute; top: 10px; right: 10px;
+  background: rgba(245,240,232,0.08);
+  border: 1px solid rgba(245,240,232,0.15);
+  color: rgba(245,240,232,0.7);
+  font-family: var(--font-display);
+  font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 5px 10px; border-radius: 2px;
+  cursor: pointer; transition: all .2s;
+}
+.copy-btn:hover { background: rgba(245,240,232,0.14); color: var(--ivory); }
+.copy-btn.copied { color: var(--gold); border-color: var(--gold); }
+
+/* ── Vector stores ── */
+.vstore-list {
+  margin-top: 28px;
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px; max-width: 900px;
+}
+.vstore {
+  padding: 20px 22px;
+  border: 1px solid var(--filet);
+  border-radius: 2px;
+  background: var(--ivory);
+}
+.vstore h3 {
+  font-family: var(--font-hero);
+  font-size: 1.35rem; font-weight: normal;
+  letter-spacing: -0.01em; margin-bottom: 6px;
+}
+.vstore-status {
+  font-family: var(--font-display);
+  font-size: 10px; font-weight: 500;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--gold);
+}
+.vstore-status.planned { color: rgba(26,25,21,0.45); }
+.vstore p {
+  font-size: 0.95rem;
+  color: rgba(26,25,21,0.68);
+  margin-top: 8px;
+}
+.vstore code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  background: rgba(26,25,21,0.06);
+  padding: 1px 6px; border-radius: 2px;
+}
+
+/* ── Architecture callout ── */
+.callout {
+  margin-top: 20px;
+  padding: 28px 32px;
+  border-left: 3px solid var(--gold);
+  background: rgba(201,162,39,0.05);
+  font-style: italic;
+  font-size: 1.12rem;
+  line-height: 1.6;
+  color: rgba(26,25,21,0.82);
+  max-width: 820px;
+}
+.callout a {
+  font-style: normal;
+  color: var(--red);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(139,37,0,0.3);
+  padding-bottom: 1px;
+  transition: border-color .2s;
+}
+.callout a:hover { border-color: var(--red); }
+
+/* ── Capability list ── */
+.capabilities {
+  margin-top: 28px;
+  max-width: 760px;
+  list-style: none;
+}
+.capabilities li {
+  padding: 16px 0 16px 40px;
+  border-bottom: 1px solid var(--filet-light);
+  position: relative;
+  font-size: 1.08rem;
+  color: rgba(26,25,21,0.82);
+}
+.capabilities li::before {
+  content: '§';
+  position: absolute; left: 8px; top: 16px;
+  color: var(--gold);
+  font-family: var(--font-hero);
+  font-size: 1.2rem;
+}
+.capabilities li:last-child { border-bottom: none; }
+
+/* ── Ecosystem ── */
+.eco-list {
+  margin-top: 28px;
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.eco-item {
+  padding: 20px 0;
+  border-top: 2px solid var(--charcoal);
+}
+.eco-item h3 {
+  font-size: 0.95rem;
+  margin-bottom: 6px;
+}
+.eco-item p {
+  font-size: 0.95rem;
+  color: rgba(26,25,21,0.65);
+  margin: 0;
+}
+
+/* ── Footer ── */
+footer {
+  background: var(--charcoal);
+  color: var(--ivory);
+  margin-top: 48px;
+  padding: 64px 0 32px;
+}
+footer .wrap { max-width: 1120px; }
+.footer-grid {
+  display: grid; grid-template-columns: 1.3fr 1fr 1fr 1fr;
   gap: 40px;
-  padding-top: 8px;
+  padding-bottom: 48px;
+  border-bottom: 1px solid rgba(245,240,232,0.1);
 }
-.two-col > .col-stars, .two-col > .col-downloads { min-width: 0; }
-.two-col-divider {
-  background: var(--filet);
-  width: 1px;
-}
-.col-eyebrow {
+.footer-col h4 {
   font-family: var(--font-display);
   font-size: 11px; font-weight: 500;
   letter-spacing: 0.18em; text-transform: uppercase;
-  color: var(--charcoal);
-  padding: 20px 0 12px;
-  border-bottom: 1px solid var(--filet);
-  display: flex; align-items: center; gap: 8px;
+  color: var(--gold);
+  margin-bottom: 18px;
 }
-.col-eyebrow svg { width: 12px; height: 12px; color: var(--gold); }
-.col-eyebrow .count {
-  margin-left: auto;
+.footer-col ul { list-style: none; }
+.footer-col li { margin-bottom: 10px; }
+.footer-col a {
+  color: rgba(245,240,232,0.72);
+  text-decoration: none;
   font-family: var(--font-body);
-  font-size: 12px; font-style: italic;
-  font-weight: 300; letter-spacing: 0;
-  color: rgba(26,25,21,0.45); text-transform: none;
+  font-size: 1rem;
+  transition: color .2s;
 }
-
-/* ── Stats row ── */
-.stats-row {
-  display: grid; grid-template-columns: repeat(2,1fr);
-  border-bottom: 1px solid var(--filet);
-}
-.stat-cell {
-  padding: 14px 0; text-align: center;
-  border-right: 1px solid var(--filet);
-}
-.stat-cell:last-child { border-right: none; }
-.stat-value {
-  font-family: var(--font-display);
-  font-size: 22px; font-weight: 600;
-  color: var(--charcoal); letter-spacing: -0.02em;
-}
-.stat-label {
+.footer-col a:hover { color: var(--ivory); }
+.footer-about p {
   font-family: var(--font-body);
-  font-size: 11px; font-style: italic;
-  color: rgba(26,25,21,0.45); margin-top: 4px; font-weight: 300;
+  font-size: 0.98rem;
+  color: rgba(245,240,232,0.6);
+  font-style: italic;
+  max-width: 280px;
 }
-
-/* ── Section headers ── */
-.section-header {
-  display: flex; align-items: baseline; justify-content: space-between;
-  padding: 28px 0 16px; border-bottom: 1px solid var(--filet);
+.footer-about .brand {
+  color: var(--ivory); display: block; margin-bottom: 14px;
 }
-.section-title {
+.footer-bottom {
+  padding-top: 28px;
+  display: flex; justify-content: space-between; align-items: center;
   font-family: var(--font-display);
-  font-size: 12px; font-weight: 500;
-  letter-spacing: 0.16em; text-transform: uppercase;
+  font-size: 11px; letter-spacing: 0.1em;
+  color: rgba(245,240,232,0.35);
+  flex-wrap: wrap; gap: 12px;
 }
-.section-title::before { content: '\00a7'; margin-right: 8px; color: var(--gold); }
-.section-note {
-  font-family: var(--font-body);
-  font-size: 12px; font-style: italic;
-  color: rgba(26,25,21,0.4); font-weight: 300;
+.footer-bottom a {
+  color: rgba(245,240,232,0.55); text-decoration: none;
+  border-bottom: 1px dashed rgba(245,240,232,0.25);
 }
-
-/* ── Charts ── */
-.chart-panel { padding: 20px 0; border-bottom: 1px solid var(--filet-light); }
-.chart-wrap { position: relative; height: 220px; }
-canvas { border-radius: 0 !important; }
-
-/* ── Heatmap ── */
-.heatmap-container { padding: 24px 0; }
-.heatmap-body { display: flex; align-items: flex-start; }
-.heatmap-labels {
-  display: flex; flex-direction: column; gap: 3px; margin-right: 8px;
-}
-.heatmap-label {
-  font-family: var(--font-display);
-  font-size: 9px; color: rgba(26,25,21,0.35);
-  height: 16px; display: flex; align-items: center;
-  letter-spacing: 0.05em; text-transform: uppercase;
-}
-.heatmap-scroll { overflow-x: auto; flex: 1; }
-.heatmap-scroll::-webkit-scrollbar { height: 3px; }
-.heatmap-scroll::-webkit-scrollbar-thumb { background: var(--ivory-dark); border-radius: 2px; }
-.heatmap-grid { display: flex; gap: 3px; }
-.heatmap-column { display: flex; flex-direction: column; gap: 3px; align-items: center; }
-.heatmap-cell {
-  width: 16px; height: 16px;
-  display: flex; align-items: center; justify-content: center;
-  cursor: default;
-}
-.heatmap-dot {
-  border-radius: 50%; background: var(--charcoal);
-  transition: all 0.15s;
-}
-.heatmap-cell:hover .heatmap-dot { box-shadow: 0 0 0 2px var(--gold); }
-.heatmap-months {
-  display: flex; gap: 3px; margin-bottom: 6px;
-}
-.heatmap-month {
-  font-family: var(--font-display);
-  font-size: 9px; color: rgba(26,25,21,0.35);
-  letter-spacing: 0.05em; text-transform: uppercase;
-  min-width: 16px; text-align: center;
-}
-.heatmap-legend {
-  display: flex; align-items: center; gap: 6px;
-  justify-content: flex-end; margin-top: 12px;
-}
-.heatmap-legend span {
-  font-family: var(--font-body); font-size: 11px;
-  font-style: italic; color: rgba(26,25,21,0.35);
-}
-.heatmap-legend .sw {
-  width: 10px; height: 10px; border-radius: 50%;
-  display: inline-block; background: var(--charcoal);
-}
-
-/* ── Colophon ── */
-.colophon {
-  padding: 28px 0 48px; border-top: 1px solid var(--filet);
-  display: flex; justify-content: space-between; align-items: baseline;
-}
-.colophon-left {
-  font-family: var(--font-body);
-  font-size: 12px; font-style: italic;
-  color: rgba(26,25,21,0.35); font-weight: 300;
-}
-.colophon-left a { color: rgba(26,25,21,0.5); border-bottom: 1px solid var(--filet); text-decoration: none; }
-.colophon-left a:hover { color: var(--gold); border-color: var(--gold); }
-.colophon-right {
-  font-family: var(--font-display);
-  font-size: 10px; letter-spacing: 0.12em;
-  text-transform: uppercase; color: rgba(26,25,21,0.25);
-}
-
-/* ── Tooltip ── */
-.tooltip {
-  position: fixed; background: var(--charcoal); color: var(--ivory);
-  font-family: var(--font-display);
-  font-size: 11px; padding: 6px 12px; border-radius: 2px;
-  pointer-events: none; z-index: 100;
-  opacity: 0; transition: opacity 0.15s; white-space: nowrap;
-}
-.tooltip.visible { opacity: 1; }
+.footer-bottom a:hover { color: var(--gold); border-color: var(--gold); }
 
 /* ── Toast ── */
 .toast {
@@ -352,649 +542,343 @@ canvas { border-radius: 0 !important; }
   transform: translateX(-50%) translateY(120%);
   background: var(--charcoal); color: var(--ivory);
   font-family: var(--font-display); font-size: 12px;
-  letter-spacing: 0.04em;
-  padding: 8px 20px; border-radius: 2px;
+  letter-spacing: 0.06em;
+  padding: 9px 20px; border-radius: 2px;
   box-shadow: 0 8px 30px rgba(0,0,0,0.15);
-  transition: transform 0.45s cubic-bezier(0.16,1,0.3,1);
+  transition: transform .4s cubic-bezier(0.16,1,0.3,1);
   z-index: 100; pointer-events: none;
 }
 .toast.show { transform: translateX(-50%) translateY(0); }
 
-/* ── Empty ── */
-.empty-state {
-  text-align: center; padding: 48px 0;
-  font-family: var(--font-body); font-style: italic;
-  color: rgba(26,25,21,0.35); font-size: 15px;
-}
-
 /* ── Responsive ── */
-@media (max-width: 768px) {
-  .observatory { padding: 0 16px; }
-  .hero { padding: 32px 24px; grid-template-columns: 1fr; gap: 28px; }
-  .hero-divider { width: 100%; height: 1px; }
-  .hero-count { font-size: 4.4rem; }
-  .hero-cursor { height: 3.2rem; }
-  .two-col { grid-template-columns: 1fr; gap: 0; }
-  .two-col-divider { width: 100%; height: 1px; margin: 24px 0; }
-  .controls { flex-direction: column; align-items: flex-start; }
-  .cartouche { flex-direction: column; gap: 4px; }
+@media (max-width: 900px) {
+  .cards { grid-template-columns: 1fr; }
+  .deploy-grid { grid-template-columns: 1fr; }
+  .vstore-list { grid-template-columns: 1fr; }
+  .eco-list { grid-template-columns: 1fr; gap: 12px; }
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+}
+@media (max-width: 640px) {
+  .wrap { padding: 0 20px; }
+  .hero { padding: 48px 28px; margin: 20px 0 32px; }
+  section { padding: 48px 0; }
+  .topnav { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .topnav-links { gap: 18px; flex-wrap: wrap; }
+  .footer-grid { grid-template-columns: 1fr; }
 }
 </style>
 </head>
 <body>
 
-<div class="observatory">
+<a href="#main" class="skip-link">Skip to content</a>
 
-  <header class="cartouche">
-    <div class="cartouche-title">Observatoire<span>·</span>Releve stellaire</div>
-    <div class="cartouche-sub">scub-france / Docling-Studio</div>
-  </header>
-
-  <div class="hero">
-    <div class="hero-panel">
-      <div class="hero-eyebrow">
-        <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
-        Etoiles
+<header>
+  <div class="wrap">
+    <nav class="topnav" aria-label="Primary">
+      <a href="#" class="brand">Docling<span>·</span>Studio</a>
+      <div class="topnav-links">
+        <a href="#use-cases">Use cases</a>
+        <a href="#deployment">Deployment</a>
+        <a href="#architecture">Architecture</a>
+        <a href="https://github.com/scub-france/Docling-Studio" class="accent" rel="noopener">GitHub</a>
       </div>
-      <div class="hero-count">
-        <span id="heroCount">--</span>
-        <span class="hero-cursor"></span>
-      </div>
-      <div class="hero-label">observees a ce jour</div>
-      <div class="hero-delta" id="heroBadge">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-        <span>+0 cette semaine</span>
-      </div>
-      <div class="hero-meta" id="heroMeta">derniere observation : --</div>
-    </div>
-    <div class="hero-divider"></div>
-    <div class="hero-panel">
-      <div class="hero-eyebrow">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Telechargements
-      </div>
-      <div class="hero-count">
-        <span id="heroDownloads">--</span>
-        <span class="hero-cursor"></span>
-      </div>
-      <div class="hero-label">tirages cumules</div>
-      <div class="hero-delta" id="heroDownloadsDelta">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-        <span>+0 cette semaine</span>
-      </div>
-      <div class="hero-meta" id="heroDownloadsMeta">releve : --</div>
-    </div>
+    </nav>
   </div>
+</header>
 
-  <div class="controls">
-    <div class="filter-group">
-      <label>Periode :</label>
-      <button class="filter-btn" data-period="7">7j</button>
-      <button class="filter-btn" data-period="14">14j</button>
-      <button class="filter-btn" data-period="30">30j</button>
-      <button class="filter-btn" data-period="90">90j</button>
-      <button class="filter-btn active" data-period="all">Tout</button>
+<main id="main">
+<div class="wrap">
+
+  <!-- ── Hero ── -->
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero-eyebrow">Open-source · Visual RAG inspection</div>
+    <h1 id="hero-title">Docling Studio</h1>
+    <p class="hero-tagline">Inspect, debug and repair Docling-based RAG pipelines visually.</p>
+    <div class="cta-row">
+      <a href="https://pier-jean-docling-studio.hf.space/" class="cta cta-primary" rel="noopener">
+        Try the demo
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+      <a href="https://github.com/scub-france/Docling-Studio" class="cta cta-secondary" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .3a12 12 0 0 0-3.8 23.38c.6.12.83-.26.83-.58v-2c-3.34.73-4.04-1.6-4.04-1.6-.55-1.4-1.34-1.77-1.34-1.77-1.08-.74.08-.73.08-.73 1.2.09 1.83 1.24 1.83 1.24 1.07 1.83 2.81 1.3 3.5 1 .1-.78.42-1.3.76-1.6-2.66-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.31-.54-1.52.1-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.3-1.55 3.3-1.23 3.3-1.23.64 1.66.24 2.87.12 3.18a4.63 4.63 0 0 1 1.23 3.22c0 4.6-2.8 5.63-5.48 5.92.42.38.81 1.1.81 2.22v3.29c0 .32.22.7.83.58A12 12 0 0 0 12 .3"/></svg>
+        View on GitHub
+      </a>
     </div>
-    <button class="btn-refresh" id="btnRefresh">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="23 4 23 10 17 10"></polyline>
-        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
-      </svg>
-      Actualiser
-    </button>
-  </div>
-
-  <div class="two-col">
-
-    <!-- ─── Colonne Etoiles ─── -->
-    <div class="col-stars">
-      <div class="col-eyebrow">
-        <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
-        Etoiles
-        <span class="count" id="starsCount">--</span>
-      </div>
-
-      <div class="stats-row">
-        <div class="stat-cell"><div class="stat-value" id="statStarsThisWeek">--</div><div class="stat-label">cette semaine</div></div>
-        <div class="stat-cell"><div class="stat-value" id="statStarsPeak">--</div><div class="stat-label">pic journalier</div></div>
-      </div>
-
-      <div class="section-header">
-        <div class="section-title">Courbe cumulative</div>
-        <div class="section-note">observations</div>
-      </div>
-      <div class="chart-panel">
-        <div class="chart-wrap"><canvas id="chartStarsCumul"></canvas></div>
-      </div>
-
-      <div class="section-header">
-        <div class="section-title">Sismogramme journalier</div>
-        <div class="section-note">impulsions / jour</div>
-      </div>
-      <div class="chart-panel">
-        <div class="chart-wrap"><canvas id="chartStarsDaily"></canvas></div>
-      </div>
-
-      <div class="section-header">
-        <div class="section-title">Carte de densite</div>
-        <div class="section-note">activite par jour</div>
-      </div>
-      <div class="heatmap-container" id="heatmapStars">
-        <div class="empty-state">Chargement...</div>
-      </div>
+    <div class="hero-badges" aria-label="Project facts">
+      <span class="badge">MIT licensed</span>
+      <span class="badge">Dockerised</span>
+      <span class="badge">Built on Docling</span>
     </div>
+  </section>
 
-    <div class="two-col-divider"></div>
+  <!-- ── Problem ── -->
+  <section class="problem" aria-labelledby="problem-title">
+    <div class="section-eyebrow">Why it exists</div>
+    <h2 id="problem-title">The JSON that Docling emits is not enough.</h2>
+    <p>
+      Docling turns PDFs into rich structured data, but structured data alone does not tell you
+      whether the extraction is <em>good enough for production</em>. Debugging a RAG pipeline means
+      chasing silent failures across OCR, chunking, embedding and retrieval — with no single place
+      to see what went wrong.
+    </p>
+    <p>
+      Docling Studio is the missing inspection layer: a visual studio where each stage of the
+      pipeline can be opened, verified and repaired before it ships.
+    </p>
+  </section>
 
-    <!-- ─── Colonne Telechargements ─── -->
-    <div class="col-downloads">
-      <div class="col-eyebrow">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Telechargements
-        <span class="count" id="downloadsCount">--</span>
-      </div>
+  <!-- ── Use cases ── -->
+  <section id="use-cases" aria-labelledby="usecases-title">
+    <div class="section-eyebrow">Use cases</div>
+    <h2 id="usecases-title">Three ways to open the black box.</h2>
 
-      <div class="stats-row">
-        <div class="stat-cell"><div class="stat-value" id="statDlThisWeek">--</div><div class="stat-label">cette semaine</div></div>
-        <div class="stat-cell"><div class="stat-value" id="statDlPeak">--</div><div class="stat-label">pic journalier</div></div>
-      </div>
+    <div class="cards">
 
-      <div class="section-header">
-        <div class="section-title">Courbe cumulative</div>
-        <div class="section-note">tirages</div>
-      </div>
-      <div class="chart-panel">
-        <div class="chart-wrap"><canvas id="chartDlCumul"></canvas></div>
-      </div>
+      <article class="card">
+        <span class="card-badge active">Active</span>
+        <div class="card-illus" aria-hidden="true">
+          <svg viewBox="0 0 200 120" fill="none">
+            <rect x="20" y="14" width="110" height="92" fill="rgba(26,25,21,0.04)" stroke="rgba(26,25,21,0.3)"/>
+            <line x1="32" y1="30" x2="108" y2="30" stroke="rgba(26,25,21,0.4)" stroke-width="2"/>
+            <line x1="32" y1="42" x2="88" y2="42" stroke="rgba(26,25,21,0.25)" stroke-width="1.5"/>
+            <line x1="32" y1="52" x2="118" y2="52" stroke="rgba(26,25,21,0.25)" stroke-width="1.5"/>
+            <line x1="32" y1="62" x2="98" y2="62" stroke="rgba(26,25,21,0.25)" stroke-width="1.5"/>
+            <rect x="28" y="26" width="84" height="10" fill="none" stroke="#c9a227" stroke-width="1.5" stroke-dasharray="3,2"/>
+            <rect x="28" y="48" width="94" height="10" fill="none" stroke="#8b2500" stroke-width="1.5" stroke-dasharray="3,2"/>
+            <circle cx="160" cy="40" r="22" fill="none" stroke="rgba(26,25,21,0.5)" stroke-width="1.5"/>
+            <circle cx="160" cy="40" r="8" fill="#c9a227" opacity="0.6"/>
+            <line x1="155" y1="35" x2="165" y2="45" stroke="#1a1915" stroke-width="1"/>
+            <line x1="165" y1="35" x2="155" y2="45" stroke="#1a1915" stroke-width="1"/>
+          </svg>
+        </div>
+        <h3>OCR Debug</h3>
+        <div class="card-flow">upload <span class="arrow">→</span> convert <span class="arrow">→</span> bbox <span class="arrow">→</span> validate</div>
+        <p>Upload a document, run a conversion, inspect every bounding box and validate the extraction against the source page.</p>
+      </article>
 
-      <div class="section-header">
-        <div class="section-title">Sismogramme journalier</div>
-        <div class="section-note">tirages / jour</div>
-      </div>
-      <div class="chart-panel">
-        <div class="chart-wrap"><canvas id="chartDlDaily"></canvas></div>
-      </div>
+      <article class="card">
+        <span class="card-badge active">Active</span>
+        <div class="card-illus" aria-hidden="true">
+          <svg viewBox="0 0 200 120" fill="none">
+            <rect x="14" y="42" width="34" height="36" fill="rgba(26,25,21,0.06)" stroke="rgba(26,25,21,0.35)"/>
+            <line x1="20" y1="52" x2="42" y2="52" stroke="rgba(26,25,21,0.4)"/>
+            <line x1="20" y1="58" x2="38" y2="58" stroke="rgba(26,25,21,0.3)"/>
+            <line x1="20" y1="64" x2="42" y2="64" stroke="rgba(26,25,21,0.3)"/>
+            <line x1="20" y1="70" x2="36" y2="70" stroke="rgba(26,25,21,0.3)"/>
+            <path d="M52 60 L70 60" stroke="#c9a227" stroke-width="1.5" marker-end="url(#ar)"/>
+            <rect x="72" y="46" width="12" height="8" fill="rgba(139,37,0,0.2)" stroke="#8b2500"/>
+            <rect x="72" y="56" width="12" height="8" fill="rgba(201,162,39,0.25)" stroke="#c9a227"/>
+            <rect x="72" y="66" width="12" height="8" fill="rgba(26,25,21,0.1)" stroke="rgba(26,25,21,0.5)"/>
+            <path d="M88 60 L108 60" stroke="#c9a227" stroke-width="1.5" marker-end="url(#ar)"/>
+            <circle cx="118" cy="60" r="10" fill="rgba(26,25,21,0.08)" stroke="rgba(26,25,21,0.5)"/>
+            <text x="118" y="64" font-family="monospace" font-size="8" text-anchor="middle" fill="rgba(26,25,21,0.6)">∑</text>
+            <path d="M132 60 L150 60" stroke="#c9a227" stroke-width="1.5" marker-end="url(#ar)"/>
+            <rect x="154" y="42" width="32" height="36" fill="none" stroke="rgba(26,25,21,0.5)" stroke-dasharray="3,2"/>
+            <circle cx="162" cy="52" r="2" fill="#8b2500"/>
+            <circle cx="172" cy="58" r="2" fill="#c9a227"/>
+            <circle cx="168" cy="68" r="2" fill="rgba(26,25,21,0.5)"/>
+            <circle cx="180" cy="70" r="2" fill="#8b2500"/>
+            <defs><marker id="ar" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#c9a227"/></marker></defs>
+          </svg>
+        </div>
+        <h3>RAG Pipeline Inspection</h3>
+        <div class="card-flow">document <span class="arrow">→</span> chunk <span class="arrow">→</span> embed <span class="arrow">→</span> store</div>
+        <p>Walk a document through chunking, embedding and vector-store retrieval. Visualise every transformation and spot regressions before they ship.</p>
+      </article>
 
-      <div class="section-header">
-        <div class="section-title">Carte de densite</div>
-        <div class="section-note">activite par jour</div>
-      </div>
-      <div class="heatmap-container" id="heatmapDownloads">
-        <div class="empty-state">Chargement...</div>
-      </div>
+      <article class="card soon" aria-hidden="false">
+        <span class="card-badge">Coming soon</span>
+        <div class="card-illus" aria-hidden="true">
+          <svg viewBox="0 0 200 120" fill="none">
+            <rect x="20" y="38" width="36" height="44" fill="rgba(26,25,21,0.04)" stroke="rgba(26,25,21,0.3)"/>
+            <line x1="26" y1="48" x2="50" y2="48" stroke="rgba(26,25,21,0.3)"/>
+            <line x1="26" y1="56" x2="46" y2="56" stroke="rgba(26,25,21,0.3)"/>
+            <line x1="26" y1="64" x2="50" y2="64" stroke="rgba(26,25,21,0.3)"/>
+            <path d="M62 60 L96 60" stroke="rgba(26,25,21,0.4)" stroke-dasharray="4,3"/>
+            <circle cx="120" cy="60" r="24" fill="none" stroke="rgba(26,25,21,0.35)"/>
+            <circle cx="120" cy="60" r="14" fill="none" stroke="rgba(26,25,21,0.35)" stroke-dasharray="2,3"/>
+            <circle cx="120" cy="60" r="5" fill="rgba(201,162,39,0.5)"/>
+            <path d="M146 60 L178 60" stroke="rgba(26,25,21,0.4)" stroke-dasharray="4,3"/>
+            <text x="188" y="64" font-family="monospace" font-size="10" fill="rgba(26,25,21,0.5)">?</text>
+          </svg>
+        </div>
+        <h3>Chunkless RAG Debugger</h3>
+        <div class="card-flow">document <span class="arrow">→</span> retrieve</div>
+        <p>Visual inspection for chunkless retrieval pipelines.</p>
+      </article>
+
     </div>
+  </section>
 
-  </div>
+  <!-- ── Deployment ── -->
+  <section id="deployment" aria-labelledby="deploy-title">
+    <div class="section-eyebrow">Deployment</div>
+    <h2 id="deploy-title">Two modes. One image.</h2>
+    <p>Run Docling Studio locally for fast debugging, or plug it into an external Docling Serve instance to inspect your production pipeline.</p>
 
-  <div class="colophon">
-    <div class="colophon-left">Donnees en provenance de l'<a href="https://github.com/scub-france/Docling-Studio" target="_blank">API GitHub</a></div>
-    <div class="colophon-right">Observatoire MMXXVI</div>
-  </div>
+    <div class="deploy-grid">
+      <article class="deploy-card">
+        <h3>Local <span class="tag">embedded</span></h3>
+        <p>Docling embedded in the container. Standalone, zero dependencies, ideal for quick inspection and offline work.</p>
+        <pre class="code" aria-label="Local deployment command"><button class="copy-btn" data-clipboard="docker run -p 8000:8000 ghcr.io/scub-france/docling-studio:latest">Copy</button><span class="tok-comment"># Local — Docling embedded</span>
+docker run -p 8000:8000 \
+  ghcr.io/scub-france/docling-studio:latest</pre>
+      </article>
+
+      <article class="deploy-card">
+        <h3>Remote <span class="tag">serve-connected</span></h3>
+        <p>Connect Docling Studio to an external Docling Serve instance. The recommended mode to inspect staging or production pipelines.</p>
+        <pre class="code" aria-label="Remote deployment command"><button class="copy-btn" data-clipboard="docker run -p 8000:8000 -e DOCLING_MODE=remote -e DOCLING_SERVE_URL=https://your-docling-serve ghcr.io/scub-france/docling-studio:latest">Copy</button><span class="tok-comment"># Remote — connected to Docling Serve</span>
+docker run -p 8000:8000 \
+  -e <span class="tok-flag">DOCLING_MODE</span>=<span class="tok-str">remote</span> \
+  -e <span class="tok-flag">DOCLING_SERVE_URL</span>=<span class="tok-str">https://your-docling-serve</span> \
+  ghcr.io/scub-france/docling-studio:latest</pre>
+      </article>
+    </div>
+  </section>
+
+  <!-- ── Vector stores ── -->
+  <section id="vector-stores" aria-labelledby="vstore-title">
+    <div class="section-eyebrow">Vector stores</div>
+    <h2 id="vstore-title">Bring your own store.</h2>
+    <p>Docling Studio supports multiple vector stores through a Protocol-based adapter system — swap the backend without touching the pipeline.</p>
+
+    <div class="vstore-list">
+      <article class="vstore">
+        <div class="vstore-status">Available today</div>
+        <h3>OpenSearch</h3>
+        <p>First-class adapter, used in production deployments.</p>
+      </article>
+      <article class="vstore">
+        <div class="vstore-status planned">Planned</div>
+        <h3>Neo4j</h3>
+        <p>Graph-native retrieval adapter on the roadmap.</p>
+      </article>
+      <article class="vstore">
+        <div class="vstore-status planned">Extensible</div>
+        <h3>Your own</h3>
+        <p>Add a new backend by implementing the <code>VectorStore</code> Protocol.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ── Architecture ── -->
+  <section id="architecture" aria-labelledby="arch-title">
+    <div class="section-eyebrow">Architecture</div>
+    <h2 id="arch-title">Hexagonal, feature-flagged, deployable.</h2>
+    <p>Ports and adapters isolate the pipeline from the outside world. Feature flags switch deployment modes without touching the code.</p>
+    <aside class="callout">
+      For a detailed walkthrough of the architecture — hexagonal ports &amp; adapters, feature flags,
+      deployment modes — read the design article on DZone:
+      <a href="https://dzone.com/articles/designing-docling-studio" rel="noopener">Designing Docling Studio ↗</a>
+    </aside>
+  </section>
+
+  <!-- ── Capabilities ── -->
+  <section aria-labelledby="cap-title">
+    <div class="section-eyebrow">What you can do with it</div>
+    <h2 id="cap-title">Validate before you ship.</h2>
+    <ul class="capabilities">
+      <li>Validate OCR extraction quality on complex technical PDFs — tables, multi-column layouts, scanned pages.</li>
+      <li>Debug chunking strategies before committing to production — compare splitters side by side, measure their effect on retrieval.</li>
+      <li>Inspect why a RAG retrieval returned the wrong passage — trace the query through embedding, similarity and ranking.</li>
+    </ul>
+  </section>
+
+  <!-- ── Ecosystem ── -->
+  <section aria-labelledby="eco-title">
+    <div class="section-eyebrow">Ecosystem</div>
+    <h2 id="eco-title">Where Docling Studio fits.</h2>
+
+    <div class="eco-list">
+      <article class="eco-item">
+        <h3>Built on Docling</h3>
+        <p>Depends on Docling, a project in the Linux Foundation AI &amp; Data ecosystem.</p>
+      </article>
+      <article class="eco-item">
+        <h3>Compatible with Docling Serve</h3>
+        <p>Connects to any Docling Serve instance as a remote backend, locally or in production.</p>
+      </article>
+      <article class="eco-item">
+        <h3>Maintained by SCUB</h3>
+        <p>Open source under the MIT license, developed and maintained by <a href="https://www.scub.net" rel="noopener" style="color:inherit;border-bottom:1px solid rgba(26,25,21,0.3);text-decoration:none;">SCUB</a>.</p>
+      </article>
+    </div>
+  </section>
 
 </div>
+</main>
 
-<div class="tooltip" id="tooltip"></div>
-<div class="toast" id="toast"></div>
+<!-- ── Footer ── -->
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-col footer-about">
+        <a href="#" class="brand">Docling<span>·</span>Studio</a>
+        <p>A visual studio for the invisible parts of your Docling-based RAG stack.</p>
+      </div>
 
-<script>
-const REPO = 'scub-france/Docling-Studio';
-const API = `https://api.github.com/repos/${REPO}/stargazers`;
+      <div class="footer-col">
+        <h4>Project</h4>
+        <ul>
+          <li><a href="https://github.com/scub-france/Docling-Studio" rel="noopener">GitHub repository</a></li>
+          <li><a href="https://pier-jean-docling-studio.hf.space/" rel="noopener">Live demo (HF Space)</a></li>
+          <li><a href="https://github.com/scub-france/Docling-Studio/issues" rel="noopener">Issues</a></li>
+          <li><a href="https://github.com/scub-france/Docling-Studio/discussions" rel="noopener">Discussions</a></li>
+        </ul>
+      </div>
 
-let allStargazers = [];
-let allDownloads = [];         // [{date: 'YYYY-MM-DD', count: n}] — full series
-let downloadsTotalAll = 0;     // total (pre-window)
-let filteredStars = [];
-let filteredDownloads = [];
-let currentPeriod = 'all';
-let chartStarsCumul, chartStarsDaily, chartDlCumul, chartDlDaily;
+      <div class="footer-col">
+        <h4>Reading</h4>
+        <ul>
+          <li><a href="https://medium.com/scub-lab/introducing-docling-studio-see-what-docling-sees-bb43fbcefa8b" rel="noopener">Introducing Docling Studio (Medium)</a></li>
+          <li><a href="https://dzone.com/articles/designing-docling-studio" rel="noopener">Designing Docling Studio (DZone)</a></li>
+        </ul>
+      </div>
 
-/* ═══ Chart.js plugins ═══ */
-const crosshairPlugin = {
-  id: 'crosshair',
-  afterDraw(chart) {
-    const active = chart.tooltip?.getActiveElements();
-    if (!active?.length) return;
-    const { ctx, chartArea: { top, bottom } } = chart;
-    const x = active[0].element.x;
-    ctx.save();
-    ctx.beginPath();
-    ctx.setLineDash([3, 3]);
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = 'rgba(201,162,39,0.5)';
-    ctx.moveTo(x, top);
-    ctx.lineTo(x, bottom);
-    ctx.stroke();
-    ctx.restore();
-  }
-};
-const glowPlugin = {
-  id: 'lineGlow',
-  beforeDatasetDraw(chart) {
-    if (chart.config.type !== 'line') return;
-    chart.ctx.save();
-    chart.ctx.shadowColor = 'rgba(139,37,0,0.3)';
-    chart.ctx.shadowBlur = 12;
-    chart.ctx.shadowOffsetY = 4;
-  },
-  afterDatasetDraw(chart) {
-    if (chart.config.type !== 'line') return;
-    chart.ctx.restore();
-  }
-};
-Chart.register(crosshairPlugin, glowPlugin);
-
-/* ═══ Helpers ═══ */
-function toast(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 2800);
-}
-
-function animateNum(el, target) {
-  const dur = 900, start = performance.now();
-  const from = parseInt(el.textContent) || 0;
-  (function tick(now) {
-    const t = Math.min((now - start) / dur, 1);
-    el.textContent = Math.round(from + (target - from) * (1 - Math.pow(1 - t, 4)));
-    if (t < 1) requestAnimationFrame(tick);
-  })(start);
-}
-
-function groupByDay(list) {
-  const m = {};
-  list.forEach(s => { m[s.dateStr] = (m[s.dateStr] || 0) + 1; });
-  return m;
-}
-function getWeekStart(d) {
-  const dt = new Date(d.getTime()), day = dt.getDay();
-  dt.setDate(dt.getDate() - day + (day === 0 ? -6 : 1));
-  return dt.toISOString().split('T')[0];
-}
-function fmtDate(d) {
-  return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
-}
-
-/* ═══ Fetch ═══ */
-async function fetchAll() {
-  let page = 1, results = [];
-  while (true) {
-    const r = await fetch(`${API}?per_page=100&page=${page}`, {
-      headers: { 'Accept': 'application/vnd.github.v3.star+json' }
-    });
-    if (!r.ok) throw new Error(`API ${r.status}`);
-    const data = await r.json();
-    if (!data.length) break;
-    results.push(...data);
-    if (data.length < 100) break;
-    page++;
-  }
-  return results.map(s => ({
-    login: s.user.login, avatar: s.user.avatar_url,
-    url: s.user.html_url,
-    date: new Date(s.starred_at),
-    dateStr: s.starred_at.split('T')[0]
-  })).sort((a, b) => a.date - b.date);
-}
-
-let bootDone = false;
-async function refreshData() {
-  const btn = document.getElementById('btnRefresh');
-  btn.classList.add('spinning'); btn.disabled = true;
-  try {
-    const [stars] = await Promise.all([fetchAll(), loadDownloads()]);
-    allStargazers = stars;
-    applyFilter(currentPeriod);
-    if (bootDone) toast(`${allStargazers.length} etoiles chargees`);
-    bootDone = true;
-  } catch (e) { toast('Erreur : ' + e.message); }
-  finally { btn.classList.remove('spinning'); btn.disabled = false; }
-}
-
-/* ═══ Window bounds ═══ */
-function periodWindow() {
-  if (currentPeriod === 'all') {
-    const startCandidates = [];
-    if (allStargazers.length) startCandidates.push(allStargazers[0].date);
-    if (allDownloads.length) startCandidates.push(new Date(allDownloads[0].date + 'T00:00:00Z'));
-    const from = startCandidates.length ? new Date(Math.min(...startCandidates.map(d => d.getTime()))) : new Date();
-    const to = new Date();
-    return { from, to };
-  }
-  const to = new Date();
-  const from = new Date();
-  from.setDate(from.getDate() - Number(currentPeriod));
-  return { from, to };
-}
-
-/* ═══ Filters ═══ */
-function applyFilter(period) {
-  currentPeriod = period;
-  document.querySelectorAll('.filter-btn[data-period]').forEach(b =>
-    b.classList.toggle('active', b.dataset.period === String(period))
-  );
-  const { from, to } = periodWindow();
-  filteredStars = allStargazers.filter(s => s.date >= from && s.date <= to);
-  filteredDownloads = allDownloads.filter(d => {
-    const dt = new Date(d.date + 'T12:00:00Z');
-    return dt >= from && dt <= to;
-  });
-  updateAll();
-}
-
-document.querySelectorAll('.filter-btn[data-period]').forEach(btn =>
-  btn.addEventListener('click', () => applyFilter(btn.dataset.period))
-);
-document.getElementById('btnRefresh').addEventListener('click', refreshData);
-
-/* ═══ Update all ═══ */
-function updateAll() {
-  updateHero();
-  updateStarsColumn();
-  updateDownloadsColumn();
-}
-
-/* ── Hero ── */
-function updateHero() {
-  animateNum(document.getElementById('heroCount'), allStargazers.length);
-  const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
-  const thisWeek = allStargazers.filter(s => s.date >= weekAgo).length;
-  document.getElementById('heroBadge').querySelector('span').textContent = `+${thisWeek} cette semaine`;
-  if (allStargazers.length) {
-    const last = allStargazers[allStargazers.length - 1];
-    document.getElementById('heroMeta').textContent = `derniere observation : ${fmtDate(last.date)}`;
-  }
-
-  animateNum(document.getElementById('heroDownloads'), downloadsTotalAll);
-  const dlLast7 = allDownloads.slice(-7).reduce((s, d) => s + d.count, 0);
-  document.getElementById('heroDownloadsDelta').querySelector('span').textContent = `+${dlLast7} cette semaine`;
-  if (allDownloads.length) {
-    const last = allDownloads[allDownloads.length - 1];
-    document.getElementById('heroDownloadsMeta').textContent = `releve : ${fmtDate(new Date(last.date + 'T12:00:00Z'))}`;
-  }
-}
-
-/* ── Chart options ── */
-function chartOpts(yTitle) {
-  return {
-    responsive: true, maintainAspectRatio: false,
-    plugins: {
-      legend: { display: false },
-      tooltip: {
-        backgroundColor: '#1a1915',
-        titleFont: { family: "'Space Grotesk'", size: 11 },
-        bodyFont: { family: "'Crimson Pro'", size: 12 },
-        cornerRadius: 2, padding: 8,
-        borderColor: 'rgba(201,162,39,0.3)', borderWidth: 1
-      }
-    },
-    scales: {
-      x: {
-        grid: { display: false },
-        border: { color: 'rgba(26,25,21,0.15)' },
-        ticks: {
-          font: { family: "'Space Grotesk'", size: 10 },
-          color: 'rgba(26,25,21,0.35)', maxTicksLimit: 12, maxRotation: 0
-        }
-      },
-      y: {
-        grid: { color: 'rgba(26,25,21,0.06)' },
-        border: { display: false },
-        ticks: {
-          font: { family: "'Space Grotesk'", size: 10 },
-          color: 'rgba(26,25,21,0.35)', precision: 0
-        },
-        title: {
-          display: true, text: yTitle,
-          font: { family: "'Crimson Pro'", size: 11, style: 'italic', weight: 300 },
-          color: 'rgba(26,25,21,0.35)'
-        }
-      }
-    },
-    interaction: { intersect: false, mode: 'index' }
-  };
-}
-
-/* ── Helpers for continuous daily series ── */
-function eachDayISO(from, to) {
-  const days = [];
-  const cur = new Date(from.getFullYear(), from.getMonth(), from.getDate());
-  const end = new Date(to.getFullYear(), to.getMonth(), to.getDate());
-  while (cur <= end) {
-    days.push(cur.toISOString().split('T')[0]);
-    cur.setDate(cur.getDate() + 1);
-  }
-  return days;
-}
-
-function makeHatchPattern(ctx) {
-  const pc = document.createElement('canvas');
-  pc.width = 8; pc.height = 8;
-  const p = pc.getContext('2d');
-  p.strokeStyle = 'rgba(26,25,21,0.1)';
-  p.lineWidth = 1;
-  p.beginPath(); p.moveTo(0, 8); p.lineTo(8, 0); p.stroke();
-  p.beginPath(); p.moveTo(-2, 2); p.lineTo(2, -2); p.stroke();
-  p.beginPath(); p.moveTo(6, 10); p.lineTo(10, 6); p.stroke();
-  return ctx.getContext('2d').createPattern(pc, 'repeat');
-}
-
-/* ── Generic chart renderers ── */
-function renderCumulative(canvasId, labels, values, yTitle, tooltipLabel, existing) {
-  const ctx = document.getElementById(canvasId);
-  if (existing) existing.destroy();
-  const pattern = makeHatchPattern(ctx);
-  return new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [{
-        data: values,
-        borderColor: '#1a1915',
-        borderWidth: 2, fill: true, backgroundColor: pattern,
-        pointRadius: 0, pointHoverRadius: 5,
-        pointHoverBackgroundColor: '#c9a227',
-        pointHoverBorderColor: '#1a1915',
-        pointHoverBorderWidth: 2, tension: 0.3,
-      }]
-    },
-    options: {
-      ...chartOpts(yTitle),
-      plugins: {
-        ...chartOpts('').plugins,
-        tooltip: {
-          ...chartOpts('').plugins.tooltip,
-          callbacks: { label: item => `${item.raw} ${tooltipLabel}` }
-        }
-      }
-    }
-  });
-}
-
-function renderDaily(canvasId, labels, values, yTitle, existing) {
-  const ctx = document.getElementById(canvasId);
-  if (existing) existing.destroy();
-  return new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [{
-        data: values,
-        backgroundColor: '#1a1915',
-        barPercentage: 0.25,
-        categoryPercentage: 1.0,
-        borderRadius: 0, borderSkipped: false,
-      }]
-    },
-    options: chartOpts(yTitle),
-  });
-}
-
-function renderHeatmap(containerId, dailyMap, fromDate, toDate, labelNoun) {
-  const container = document.getElementById(containerId);
-  const maxVal = Math.max(1, ...Object.values(dailyMap));
-
-  if (!Object.values(dailyMap).some(v => v > 0)) {
-    container.innerHTML = '<div class="empty-state">Aucune donnee sur cette periode</div>';
-    return;
-  }
-
-  const today = toDate > new Date() ? new Date() : toDate;
-  const start = new Date(fromDate);
-  while (start.getDay() !== 1) start.setDate(start.getDate() - 1);
-
-  const dayLabels = ['L', '', 'M', '', 'V', '', ''];
-  let labelsHtml = '<div class="heatmap-labels">';
-  dayLabels.forEach(d => { labelsHtml += `<div class="heatmap-label">${d}</div>`; });
-  labelsHtml += '</div>';
-
-  let gridHtml = '';
-  let monthsHtml = '';
-  const cur = new Date(start);
-  let prevMonth = -1;
-
-  while (cur <= today) {
-    if (cur.getMonth() !== prevMonth) {
-      monthsHtml += `<span class="heatmap-month">${cur.toLocaleDateString('fr-FR', { month: 'short' })}</span>`;
-      prevMonth = cur.getMonth();
-    }
-    gridHtml += '<div class="heatmap-column">';
-    for (let d = 0; d < 7; d++) {
-      if (cur > today) {
-        gridHtml += '<div class="heatmap-cell"></div>';
-      } else {
-        const ds = cur.toISOString().split('T')[0];
-        const count = dailyMap[ds] || 0;
-        const size = count === 0 ? 2 : Math.max(4, Math.min(14, (count / maxVal) * 14));
-        const opacity = count === 0 ? 0.06 : Math.max(0.2, count / maxVal);
-        const color = count > maxVal * 0.5
-          ? `rgba(139,37,0,${opacity})`
-          : `rgba(26,25,21,${opacity})`;
-        gridHtml += `<div class="heatmap-cell" data-date="${ds}" data-count="${count}"><div class="heatmap-dot" style="width:${size}px;height:${size}px;background:${color};"></div></div>`;
-      }
-      cur.setDate(cur.getDate() + 1);
-    }
-    gridHtml += '</div>';
-  }
-
-  container.innerHTML = `
-    <div class="heatmap-body">
-      ${labelsHtml}
-      <div class="heatmap-scroll">
-        <div class="heatmap-months">${monthsHtml}</div>
-        <div class="heatmap-grid">${gridHtml}</div>
+      <div class="footer-col">
+        <h4>Meta</h4>
+        <ul>
+          <li><a href="https://github.com/scub-france/Docling-Studio/blob/main/LICENSE" rel="noopener">MIT License</a></li>
+          <li><a href="mailto:pierjean.malandrino@scub.net">Contact</a></li>
+          <li><a href="https://www.scub.net" rel="noopener">SCUB</a></li>
+        </ul>
       </div>
     </div>
-    <div class="heatmap-legend">
-      <span>moins</span>
-      <div class="sw" style="width:4px;height:4px;opacity:.15"></div>
-      <div class="sw" style="width:6px;height:6px;opacity:.3"></div>
-      <div class="sw" style="width:8px;height:8px;opacity:.5"></div>
-      <div class="sw" style="width:10px;height:10px;opacity:.75"></div>
-      <div class="sw" style="width:12px;height:12px;opacity:1;background:#8b2500"></div>
-      <span>plus</span>
+
+    <div class="footer-bottom">
+      <span>© MMXXVI · Docling Studio · MIT License</span>
+      <span>Maintained by <a href="mailto:pierjean.malandrino@scub.net">Pier-Jean Malandrino</a> at SCUB</span>
     </div>
-  `;
+  </div>
+</footer>
 
-  const tip = document.getElementById('tooltip');
-  container.querySelectorAll('.heatmap-cell[data-date]').forEach(cell => {
-    cell.addEventListener('mouseenter', () => {
-      const c = cell.dataset.count;
-      const d = new Date(cell.dataset.date);
-      tip.textContent = `${d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })} — ${c} ${labelNoun}${c > 1 ? 's' : ''}`;
-      tip.classList.add('visible');
-    });
-    cell.addEventListener('mousemove', e => {
-      tip.style.left = (e.clientX + 12) + 'px';
-      tip.style.top = (e.clientY - 8) + 'px';
-    });
-    cell.addEventListener('mouseleave', () => tip.classList.remove('visible'));
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+document.querySelectorAll('.copy-btn').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(btn.dataset.clipboard);
+      const prev = btn.textContent;
+      btn.textContent = 'Copied';
+      btn.classList.add('copied');
+      const t = document.getElementById('toast');
+      t.textContent = 'Command copied to clipboard';
+      t.classList.add('show');
+      setTimeout(() => {
+        btn.textContent = prev;
+        btn.classList.remove('copied');
+        t.classList.remove('show');
+      }, 1800);
+    } catch (e) {
+      const t = document.getElementById('toast');
+      t.textContent = 'Copy failed — select manually';
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2200);
+    }
   });
-}
-
-/* ── Stars column ── */
-function updateStarsColumn() {
-  document.getElementById('starsCount').textContent = `${filteredStars.length} sur la periode`;
-
-  const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
-  document.getElementById('statStarsThisWeek').textContent = filteredStars.filter(s => s.date >= weekAgo).length;
-  const dailyMap = groupByDay(filteredStars);
-  document.getElementById('statStarsPeak').textContent = Math.max(0, ...Object.values(dailyMap)) || '--';
-
-  const { from, to } = periodWindow();
-  const fromDate = filteredStars.length ? (currentPeriod === 'all' ? filteredStars[0].date : from) : from;
-  const toDate = new Date(Math.min(to.getTime(), Date.now()));
-
-  const labels = eachDayISO(fromDate, toDate);
-  const startCumul = allStargazers.findIndex(s => s.date >= fromDate);
-  let cumul = startCumul === -1 ? allStargazers.length : startCumul;
-  const cumulValues = labels.map(d => { cumul += dailyMap[d] || 0; return cumul; });
-  const dailyValues = labels.map(d => dailyMap[d] || 0);
-
-  chartStarsCumul = renderCumulative('chartStarsCumul', labels, cumulValues, 'Etoiles cumulees', 'etoiles cumulees', chartStarsCumul);
-  chartStarsDaily = renderDaily('chartStarsDaily', labels, dailyValues, 'Impulsions / jour', chartStarsDaily);
-  renderHeatmap('heatmapStars', dailyMap, fromDate, toDate, 'etoile');
-}
-
-/* ── Downloads column ── */
-function updateDownloadsColumn() {
-  const dailyMap = {};
-  filteredDownloads.forEach(d => { dailyMap[d.date] = d.count; });
-  const total = filteredDownloads.reduce((s, d) => s + d.count, 0);
-  document.getElementById('downloadsCount').textContent = `${total} sur la periode`;
-
-  const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
-  const weekTotal = filteredDownloads
-    .filter(d => new Date(d.date + 'T12:00:00Z') >= weekAgo)
-    .reduce((s, d) => s + d.count, 0);
-  document.getElementById('statDlThisWeek').textContent = weekTotal;
-  document.getElementById('statDlPeak').textContent = Math.max(0, ...filteredDownloads.map(d => d.count)) || '--';
-
-  if (!filteredDownloads.length) {
-    if (chartDlCumul) chartDlCumul.destroy();
-    if (chartDlDaily) chartDlDaily.destroy();
-    document.getElementById('heatmapDownloads').innerHTML = '<div class="empty-state">Aucune donnee sur cette periode</div>';
-    return;
-  }
-
-  const { from, to } = periodWindow();
-  const firstDl = new Date(filteredDownloads[0].date + 'T12:00:00Z');
-  const fromDate = currentPeriod === 'all' ? firstDl : from;
-  const toDate = new Date(Math.min(to.getTime(), Date.now()));
-
-  const labels = eachDayISO(fromDate, toDate);
-
-  // Cumul baseline: downloads before window
-  let cumul = 0;
-  for (const d of allDownloads) {
-    const dt = new Date(d.date + 'T12:00:00Z');
-    if (dt < fromDate) cumul += d.count; else break;
-  }
-  const cumulValues = labels.map(d => { cumul += dailyMap[d] || 0; return cumul; });
-  const dailyValues = labels.map(d => dailyMap[d] || 0);
-
-  chartDlCumul = renderCumulative('chartDlCumul', labels, cumulValues, 'Tirages cumules', 'tirages cumules', chartDlCumul);
-  chartDlDaily = renderDaily('chartDlDaily', labels, dailyValues, 'Tirages / jour', chartDlDaily);
-  renderHeatmap('heatmapDownloads', dailyMap, fromDate, toDate, 'tirage');
-}
-
-/* ═══ Downloads fetch ═══ */
-async function loadDownloads() {
-  try {
-    const r = await fetch('downloads.json', { cache: 'no-store' });
-    if (!r.ok) throw new Error('no data');
-    const data = await r.json();
-    if (!data || !data.daily) throw new Error('empty');
-    allDownloads = data.daily.slice();
-    downloadsTotalAll = data.total || allDownloads.reduce((s, d) => s + d.count, 0);
-  } catch (e) {
-    allDownloads = [];
-    downloadsTotalAll = 0;
-  }
-}
-
-/* ═══ Boot ═══ */
-refreshData();
+});
 </script>
 
 </body>
