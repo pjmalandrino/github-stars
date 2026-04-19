@@ -281,6 +281,33 @@ canvas { border-radius: 0 !important; }
   display: inline-block; background: var(--charcoal);
 }
 
+/* ── Downloads ── */
+.downloads-panel {
+  padding: 24px 0;
+  display: grid; grid-template-columns: 220px 1fr;
+  gap: 32px; align-items: center;
+  border-bottom: 1px solid var(--filet-light);
+}
+.downloads-card {
+  border-right: 1px solid var(--filet); padding-right: 24px;
+}
+.downloads-total {
+  font-family: var(--font-hero);
+  font-size: 4rem; line-height: 1;
+  color: var(--charcoal); letter-spacing: -0.02em;
+}
+.downloads-total-label {
+  font-family: var(--font-body);
+  font-size: 13px; font-style: italic;
+  color: rgba(26,25,21,0.45);
+  margin-top: 8px; font-weight: 300;
+}
+.downloads-chart-wrap { position: relative; height: 140px; }
+@media (max-width: 768px) {
+  .downloads-panel { grid-template-columns: 1fr; gap: 16px; }
+  .downloads-card { border-right: none; border-bottom: 1px solid var(--filet); padding-right: 0; padding-bottom: 16px; }
+}
+
 /* ── Stargazers ── */
 .stargazer-list { padding: 16px 0; }
 .stargazer-row {
@@ -478,6 +505,14 @@ canvas { border-radius: 0 !important; }
   </div>
 
   <div class="section-header">
+    <div class="section-title">Journal des telechargements</div>
+    <div class="section-note" id="downloadsNote">releves quotidiens des releases</div>
+  </div>
+  <div class="downloads-panel" id="downloadsPanel">
+    <div class="empty-state">Chargement du journal...</div>
+  </div>
+
+  <div class="section-header">
     <div class="section-title">Registre des observateurs</div>
     <div class="section-note" id="stargazerCount">-- entrees</div>
   </div>
@@ -501,7 +536,7 @@ const API = `https://api.github.com/repos/${REPO}/stargazers`;
 
 let allStargazers = [];
 let filtered = [];
-let chartCumulative, chartDaily, chartWeekly;
+let chartCumulative, chartDaily, chartWeekly, chartDownloads;
 
 /* ═══ Chart.js plugins ═══ */
 const crosshairPlugin = {
@@ -954,8 +989,73 @@ function updateList() {
   `).join('');
 }
 
+/* ═══ Downloads ═══ */
+async function loadDownloads() {
+  const panel = document.getElementById('downloadsPanel');
+  try {
+    const r = await fetch('downloads.json', { cache: 'no-store' });
+    if (!r.ok) throw new Error('no data');
+    const history = await r.json();
+    if (!history.length) throw new Error('empty');
+    renderDownloads(history);
+  } catch (e) {
+    panel.innerHTML = '<div class="empty-state">Aucun releve disponible pour le moment</div>';
+  }
+}
+
+function renderDownloads(history) {
+  const panel = document.getElementById('downloadsPanel');
+  const total = history[history.length - 1].total;
+
+  const daily = [];
+  for (let i = 1; i < history.length; i++) {
+    daily.push({
+      date: history[i].date,
+      count: Math.max(0, history[i].total - history[i-1].total),
+    });
+  }
+
+  const note = document.getElementById('downloadsNote');
+  note.textContent = history.length > 1
+    ? `${history.length} releves \u00b7 depuis le ${history[0].date}`
+    : `premier releve le ${history[0].date}`;
+
+  panel.innerHTML = `
+    <div class="downloads-card">
+      <div class="downloads-total" id="downloadsTotal">0</div>
+      <div class="downloads-total-label">telechargements cumules</div>
+    </div>
+    <div class="downloads-chart-wrap"><canvas id="chartDownloads"></canvas></div>
+  `;
+  animateNum(document.getElementById('downloadsTotal'), total);
+
+  if (!daily.length) {
+    document.querySelector('.downloads-chart-wrap').innerHTML =
+      '<div class="empty-state" style="padding:24px 0;">Un second releve est necessaire pour tracer la courbe</div>';
+    return;
+  }
+
+  const ctx = document.getElementById('chartDownloads');
+  if (chartDownloads) chartDownloads.destroy();
+  chartDownloads = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: daily.map(d => d.date),
+      datasets: [{
+        data: daily.map(d => d.count),
+        backgroundColor: '#1a1915',
+        barPercentage: 0.5,
+        categoryPercentage: 1.0,
+        borderRadius: 0, borderSkipped: false,
+      }],
+    },
+    options: chartOpts('Telechargements / jour'),
+  });
+}
+
 /* ═══ Boot ═══ */
 refreshData();
+loadDownloads();
 </script>
 
 </body>

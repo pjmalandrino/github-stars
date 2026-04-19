@@ -27,10 +27,17 @@ jobs:
           OUTPUT: stars.svg
         run: python generate_svg.py
 
+      - name: Track release downloads
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DOWNLOADS_REPO: scub-france/Docling-Studio
+          DOWNLOADS_FILE: downloads.json
+        run: python track_downloads.py
+
       - name: Commit & push if changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add stars.svg
+          git add stars.svg downloads.json
           git diff --staged --quiet || git commit -m "chore: update star chart [skip ci]"
           git push
