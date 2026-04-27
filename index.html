@@ -297,6 +297,10 @@ section p + p { margin-top: 14px; }
   background: var(--charcoal); color: var(--ivory);
   border-color: var(--charcoal);
 }
+.card-badge.experimental {
+  background: var(--gold); color: var(--charcoal);
+  border-color: var(--gold);
+}
 .card-illus {
   height: 130px;
   margin-bottom: 20px;
@@ -686,8 +690,8 @@ footer .wrap { max-width: 1120px; }
         <p>Walk a document through chunking, embedding and vector-store retrieval. Visualise every transformation and spot regressions before they ship.</p>
       </article>
 
-      <article class="card soon" aria-hidden="false">
-        <span class="card-badge">Coming soon</span>
+      <article class="card" aria-hidden="false">
+        <span class="card-badge experimental">Experimental</span>
         <div class="card-illus" aria-hidden="true">
           <svg viewBox="0 0 200 120" fill="none">
             <rect x="20" y="38" width="36" height="44" fill="rgba(26,25,21,0.04)" stroke="rgba(26,25,21,0.3)"/>
@@ -704,7 +708,7 @@ footer .wrap { max-width: 1120px; }
         </div>
         <h3>Chunkless RAG Debugger</h3>
         <div class="card-flow">document <span class="arrow">→</span> retrieve</div>
-        <p>Visual inspection for chunkless retrieval pipelines.</p>
+        <p>Visual inspection for chunkless retrieval pipelines. Early build available — expect rough edges and breaking changes.</p>
       </article>
 
     </div>
